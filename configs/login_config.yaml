@@ -1,0 +1,17 @@
+credentials:
+  usernames:
+    admin:
+      email: admin@admin.com
+      name: admin
+      password: $2b$12$c87zP.OvyfUPsXPzsp8tcu.rvaaAdGyiyHyS5sON5Y10lPwcgNiC.
+    rbriggs:
+      email: rbriggs@gmail.com
+      name: Rebecca Briggs
+      password: $2b$12$llR8xu2VPqXMO8/dL7ggv.zr5yy8sKH6kuotbDzPdLtEiFUzc1K7.
+cookie:
+  expiry_days: 30
+  key: some_signature_key # Must be string
+  name: some_cookie_name
+preauthorized:
+  emails:
+  - hello@a.com
