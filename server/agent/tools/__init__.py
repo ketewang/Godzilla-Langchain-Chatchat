@@ -9,3 +9,5 @@ from .search_internet import search_internet, SearchInternetInput
 from .wolfram import wolfram, WolframInput
 from .search_youtube import search_youtube, YoutubeInput
 from .arxiv import arxiv, ArxivInput
+from .buy_jz import buy_jz,Buy_jzInput
+from .godzilla_tool import query_data,Godzilla_Input

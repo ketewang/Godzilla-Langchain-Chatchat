@@ -15,13 +15,12 @@ if __name__ == "__main__":
     is_lite = "lite" in sys.argv
 
     st.set_page_config(
-        "Langchain-Chatchat WebUI",
+        "Godzilla-AI-Chat WebUI",
         os.path.join("img", "chatchat_icon_blue_square_v2.png"),
         initial_sidebar_state="expanded",
         menu_items={
-            'Get Help': 'https://github.com/chatchat-space/Langchain-Chatchat',
-            'Report a bug': "https://github.com/chatchat-space/Langchain-Chatchat/issues",
-            'About': f"""欢迎使用 Langchain-Chatchat WebUI {VERSION}！"""
+            'Get Help': 'http://www.godzilla.tech',
+            'About': f"""欢迎使用 Godzilla-AI-Chat Web {VERSION}！"""
         }
     )
 
@@ -40,7 +39,7 @@ if __name__ == "__main__":
         st.image(
             os.path.join(
                 "img",
-                "logo-long-chatchat-trans-v2.png"
+                "logo-godzilla-horizontal-white.png"
             ),
             use_column_width=True
         )

@@ -25,6 +25,7 @@ from langchain.agents.agent import AgentExecutor
 from langchain.callbacks.base import BaseCallbackManager
 from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools.base import BaseTool
+from server.agent.tools.tool_register import _TOOL_DESCRIPTIONS
 
 HUMAN_MESSAGE_TEMPLATE = "{input}\n\n{agent_scratchpad}"
 logger = logging.getLogger(__name__)
@@ -45,7 +46,18 @@ class StructuredChatOutputParserWithRetries(AgentOutputParser):
         if "tool_call" in text:
             tool_name_end = text.find("```")
             tool_name = text[:tool_name_end].strip()
-            input_para = text.split("='")[-1].split("'")[0]
+            input_para = None
+            #input_para = text.split("='")[-1].split("'")[0]
+            if len(text.split("=")) > 2: #n个参数
+                params = text.split("(")[1].split(")")[0].split(",")
+                input_para = {}
+                for param_str in params:
+                    key = param_str.split("=")[0].strip()
+                    value = param_str.split("=")[1].strip().strip("'")
+                    input_para[key] = value
+            else :#1个参数
+                input_para = text.split("='")[-1].split("'")[0]
+
             action_json = {
                 "action": tool_name,
                 "action_input": input_para
@@ -158,6 +170,11 @@ class StructuredGLM3ChatAgent(Agent):
             if tool_config:
                 tools_json.append(tool_config)
                 tool_names.append(tool.name)
+            else:#从tool_regsiter的tools里读取数据
+                simplified_config= _TOOL_DESCRIPTIONS[tool.name]
+                if simplified_config is not None:
+                    tools_json.append(simplified_config)
+                    tool_names.append(tool.name)
 
         # Format the tools for output
         formatted_tools = "\n".join([

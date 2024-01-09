@@ -108,6 +108,9 @@ $ git clone https://huggingface.co/BAAI/bge-large-zh
 $ python copy_config_example.py
 $ python init_database.py --recreate-vs
  ```
+
+
+
 ### 4. 一键启动
 
 按照以下命令启动项目

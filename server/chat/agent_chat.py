@@ -48,37 +48,51 @@ async def agent_chat(query: str = Body(..., description="用户输入", examples
         if isinstance(max_tokens, int) and max_tokens <= 0:
             max_tokens = None
 
-        model = get_ChatOpenAI(
-            model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            callbacks=[callback],
-        )
+        # model = get_ChatOpenAI(
+        #     model_name=model_name,
+        #     temperature=temperature,
+        #     max_tokens=max_tokens,
+        #     callbacks=[callback],
+        # )
 
         ## 传入全局变量来实现agent调用
         kb_list = {x["kb_name"]: x for x in get_kb_details()}
         model_container.DATABASE = {name: details['kb_info'] for name, details in kb_list.items()}
 
+        # if Agent_MODEL:
+        #     ## 如果有指定使用Agent模型来完成任务
+        #     model_agent = get_ChatOpenAI(
+        #         model_name=Agent_MODEL,
+        #         temperature=temperature,
+        #         max_tokens=max_tokens,
+        #         callbacks=[callback],
+        #     )
+        #     model_container.MODEL = model_agent
+        # else:
+        #     model_container.MODEL = model
+
+
+        default_model_name = model_name
+
         if Agent_MODEL:
-            ## 如果有指定使用Agent模型来完成任务
-            model_agent = get_ChatOpenAI(
-                model_name=Agent_MODEL,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                callbacks=[callback],
-            )
-            model_container.MODEL = model_agent
-        else:
-            model_container.MODEL = model
+            default_model_name = Agent_MODEL
+
+        model = get_ChatOpenAI(
+            model_name=default_model_name,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            callbacks=[callback],
+        )
+        model_container.MODEL = model
 
         prompt_template = get_prompt_template("agent_chat", prompt_name)
-        prompt_template_agent = CustomPromptTemplate(
-            template=prompt_template,
-            tools=tools,
-            input_variables=["input", "intermediate_steps", "history"]
-        )
-        output_parser = CustomOutputParser()
-        llm_chain = LLMChain(llm=model, prompt=prompt_template_agent)
+        # prompt_template_agent = CustomPromptTemplate(
+        #     template=prompt_template,
+        #     tools=tools,
+        #     input_variables=["input", "intermediate_steps", "history"]
+        # )
+        # output_parser = CustomOutputParser()
+        # llm_chain = LLMChain(llm=model, prompt=prompt_template_agent)
         # 把history转成agent的memory
         memory = ConversationBufferWindowMemory(k=HISTORY_LEN * 2)
         for message in history:
@@ -102,6 +116,13 @@ async def agent_chat(query: str = Body(..., description="用户输入", examples
                 verbose=True,
             )
         else:
+            prompt_template_agent = CustomPromptTemplate(
+                template=prompt_template,
+                tools=tools,
+                input_variables=["input", "intermediate_steps", "history"]
+            )
+            output_parser = CustomOutputParser()
+            llm_chain = LLMChain(llm=model, prompt=prompt_template_agent)
             agent = LLMSingleActionAgent(
                 llm_chain=llm_chain,
                 output_parser=output_parser,

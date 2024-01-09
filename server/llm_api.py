@@ -114,3 +114,8 @@ def list_search_engines() -> BaseResponse:
     from server.chat.search_engine_chat import SEARCH_ENGINES
 
     return BaseResponse(data=list(SEARCH_ENGINES))
+
+
+if __name__ == "__main__":
+    resp = list_running_models('http://127.0.0.1:20001')
+    print(resp)
