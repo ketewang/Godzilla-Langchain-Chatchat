@@ -142,6 +142,7 @@ class Authenticate:
                         self.cookie_manager.set(self.cookie_name, self.token,
                             expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
                         st.session_state['authentication_status'] = True
+                        st.session_state['logout'] = None
                     else:
                         return True
                 else:
@@ -179,7 +180,15 @@ class Authenticate:
         """
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
-        if not st.session_state['authentication_status']:
+
+        if 'authentication_status' not in st.session_state:
+            st.session_state['authentication_status'] = None
+        if 'name' not in st.session_state:
+            st.session_state['name'] = None
+        if 'username' not in st.session_state:
+            st.session_state['username'] = None
+
+        if st.session_state['authentication_status'] == None or st.session_state['authentication_status'] == False:
             self._check_cookie()
             if not st.session_state['authentication_status']:
                 if location == 'main':
