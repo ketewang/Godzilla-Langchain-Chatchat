@@ -17,6 +17,7 @@ from server.chat.search_engine_chat import search_engine_chat
 from server.chat.completion import completion
 from server.chat.feedback import chat_feedback
 from server.embeddings_api import embed_texts_endpoint
+from server.auth.auth_service import user_login
 from server.llm_api import (list_running_models, list_config_models,
                             change_llm_model, stop_llm_model,
                             get_model_config, list_search_engines)
@@ -115,6 +116,7 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
              summary="获取服务器支持的搜索引擎",
              )(list_search_engines)
 
+
     @app.post("/server/get_prompt_template",
              tags=["Server State"],
              summary="获取服务区配置的 prompt 模板")
@@ -134,6 +136,12 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
             tags=["Other"],
             summary="将文本向量化，支持本地模型和在线模型",
             )(embed_texts_endpoint)
+
+    app.post("/auth/login",
+             tags=["Authorization Management"],
+             response_model=BaseResponse,
+             summary="用户登录",
+             )(user_login)
 
 
 def mount_knowledge_routes(app: FastAPI):
@@ -232,6 +240,8 @@ def mount_knowledge_routes(app: FastAPI):
              tags=["Knowledge Base Management"],
              summary="上传文件到临时目录，用于文件对话。"
              )(upload_temp_docs)
+
+
 
 
 def mount_filename_summary_routes(app: FastAPI):

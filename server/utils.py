@@ -100,6 +100,19 @@ class BaseResponse(BaseModel):
             }
         }
 
+    # @classmethod
+    # def success(cls,msg:str,success_data:dict):
+    #     return cls(code=200,msg=msg,data=success_data)
+    #
+    # @classmethod
+    # def error(cls,errpr_data:str):
+    #     return cls(code=500,msg="error",data=errpr_data)
+    #
+    # @classmethod
+    # def fail(cls,fail_data:str):
+    #     return cls(code=501,msg="fail",data=fail_data)
+
+
 
 class ListResponse(BaseResponse):
     data: List[str] = pydantic.Field(..., description="List of names")

@@ -9,7 +9,7 @@ from .validator import Validator
 from .utils import generate_random_pw
 
 from .exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
-
+from webui_pages.utils import *
 class Authenticate:
     """
     This class will create login, logout, register user, reset password, forgot password, 
@@ -158,7 +158,7 @@ class Authenticate:
             else:
                 return False
 
-    def login(self, form_name: str, location: str='main') -> tuple:
+    def login(self,api: ApiRequest, form_name: str, location: str='main') -> tuple:
         """
         Creates a login widget.
 
@@ -200,8 +200,12 @@ class Authenticate:
                 self.username = login_form.text_input('Username').lower()
                 st.session_state['username'] = self.username
                 self.password = login_form.text_input('Password', type='password')
-
-                if login_form.form_submit_button('Login'):
+                if login_form.button('Login'):
+                    print(f"{self.username}")
+                    print(f"{self.password}")
+                    resp = api.system_login(self.username,self.password)
+                    print("sssss")
+                    print(resp)
                     self._check_credentials()
 
         return st.session_state['name'], st.session_state['authentication_status'], st.session_state['username']

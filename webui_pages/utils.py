@@ -995,6 +995,20 @@ class ApiRequest:
         resp = self.post("/chat/feedback", json=data)
         return self._get_response_value(resp)
 
+    def system_login(
+        self,
+        username: str,
+        password: str,
+    ):
+        '''
+        用户登录
+        '''
+        data = {
+            "username": username,
+            "password": password,
+        }
+        resp = self.post("/auth/login", json=data)
+        return self._get_response_value(resp)
 
 class AsyncApiRequest(ApiRequest):
     def __init__(self, base_url: str = api_address(), timeout: float = HTTPX_DEFAULT_TIMEOUT):

@@ -85,7 +85,7 @@ if __name__ == "__main__":
                 f"""<p align="right">当前版本：{VERSION}</p>""",
                 unsafe_allow_html=True,
             )
-        name,status,username = authenticator.login('用户登录', 'sidebar')
+        name,status,username = authenticator.login(api=api,form_name='用户登录',location='sidebar')
         if status == True:
             st.success('登录成功')
         elif status == False:
