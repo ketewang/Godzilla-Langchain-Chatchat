@@ -17,7 +17,7 @@ from server.chat.search_engine_chat import search_engine_chat
 from server.chat.completion import completion
 from server.chat.feedback import chat_feedback
 from server.embeddings_api import embed_texts_endpoint
-from server.auth.auth_service import user_login
+from server.auth.auth_service import user_login,user_register
 from server.llm_api import (list_running_models, list_config_models,
                             change_llm_model, stop_llm_model,
                             get_model_config, list_search_engines)
@@ -142,6 +142,14 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
              response_model=BaseResponse,
              summary="用户登录",
              )(user_login)
+
+    app.post("/auth/user_register",
+             tags=["Authorization Management"],
+             response_model=BaseResponse,
+             summary="用户注册",
+             )(user_register)
+
+
 
 
 def mount_knowledge_routes(app: FastAPI):

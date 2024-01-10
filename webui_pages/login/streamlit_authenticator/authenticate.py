@@ -1,15 +1,19 @@
+import json
+
 import jwt
 import bcrypt
 import streamlit as st
 from datetime import datetime, timedelta
 import extra_streamlit_components as stx
 
-from .hasher import Hasher
-from .validator import Validator
-from .utils import generate_random_pw
+from webui_pages.login.streamlit_authenticator.hasher import Hasher
+from webui_pages.login.streamlit_authenticator.validator import Validator
+from webui_pages.login.streamlit_authenticator.utils import generate_random_pw
 
-from .exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
+from webui_pages.login.streamlit_authenticator.exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
 from webui_pages.utils import *
+api = ApiRequest(base_url=api_address())
+
 class Authenticate:
     """
     This class will create login, logout, register user, reset password, forgot password, 
@@ -91,17 +95,17 @@ class Authenticate:
         """
         return (datetime.utcnow() + timedelta(days=self.cookie_expiry_days)).timestamp()
 
-    def _check_pw(self) -> bool:
-        """
-        Checks the validity of the entered password.
-
-        Returns
-        -------
-        bool
-            The validity of the entered password by comparing it to the hashed password on disk.
-        """
-        return bcrypt.checkpw(self.password.encode(), 
-            self.credentials['usernames'][self.username]['password'].encode())
+    # def _check_pw(self) -> bool:
+    #     """
+    #     Checks the validity of the entered password.
+    #
+    #     Returns
+    #     -------
+    #     bool
+    #         The validity of the entered password by comparing it to the hashed password on disk.
+    #     """
+    #     return bcrypt.checkpw(self.password.encode(),
+    #         self.credentials['usernames'][self.username]['password'].encode())
 
     def _check_cookie(self):
         """
@@ -118,7 +122,7 @@ class Authenticate:
                             st.session_state['username'] = self.token['username']
                             st.session_state['authentication_status'] = True
     
-    def _check_credentials(self, inplace: bool=True) -> bool:
+    def _check_credentials(self,inplace: bool=True) -> bool:
         """
         Checks the validity of the entered credentials.
 
@@ -132,33 +136,52 @@ class Authenticate:
         bool
             Validity of entered credentials.
         """
-        if self.username in self.credentials['usernames']:
-            try:
-                if self._check_pw():
-                    if inplace:
-                        st.session_state['name'] = self.credentials['usernames'][self.username]['name']
-                        self.exp_date = self._set_exp_date()
-                        self.token = self._token_encode()
-                        self.cookie_manager.set(self.cookie_name, self.token,
-                            expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
-                        st.session_state['authentication_status'] = True
-                        st.session_state['logout'] = None
-                    else:
-                        return True
-                else:
-                    if inplace:
-                        st.session_state['authentication_status'] = False
-                    else:
-                        return False
-            except Exception as e:
-                print(e)
-        else:
-            if inplace:
-                st.session_state['authentication_status'] = False
-            else:
-                return False
 
-    def login(self,api: ApiRequest, form_name: str, location: str='main') -> tuple:
+        response = api.system_login(self.username, Hasher.hash(self.password))
+        if response is not None:
+            resp = json.load(response)
+            if resp['code'] == 200:
+                #st.session_state['name'] = self.credentials['usernames'][self.username]['name']
+                self.exp_date = self._set_exp_date()
+                self.token = self._token_encode()
+                self.cookie_manager.set(self.cookie_name, self.token,
+                                        expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
+                st.session_state['authentication_status'] = True
+                st.session_state['name'] = resp['data']
+                st.session_state['logout'] = None
+                return True
+
+        st.session_state['authentication_status'] = False
+        return False
+
+
+        # if self.username in self.credentials['usernames']:
+        #     try:
+        #         if self._check_pw():
+        #             if inplace:
+        #                 st.session_state['name'] = self.credentials['usernames'][self.username]['name']
+        #                 self.exp_date = self._set_exp_date()
+        #                 self.token = self._token_encode()
+        #                 self.cookie_manager.set(self.cookie_name, self.token,
+        #                     expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
+        #                 st.session_state['authentication_status'] = True
+        #                 st.session_state['logout'] = None
+        #             else:
+        #                 return True
+        #         else:
+        #             if inplace:
+        #                 st.session_state['authentication_status'] = False
+        #             else:
+        #                 return False
+        #     except Exception as e:
+        #         print(e)
+        # else:
+        #     if inplace:
+        #         st.session_state['authentication_status'] = False
+        #     else:
+        #         return False
+
+    def login(self, form_name: str, location: str='main') -> tuple:
         """
         Creates a login widget.
 
@@ -195,17 +218,24 @@ class Authenticate:
                     login_form = st.form('Login')
                 elif location == 'sidebar':
                     login_form = st.sidebar.form('Login')
+                    # st.sidebar.title(f'用户:blue[{form_name}]')
+                    # login_username_text_input = st.sidebar.text_input(
+                    #     "username",
+                    #     "",
+                    #     key="login-username",
+                    # )
+                    # login_password_text_input = st.sidebar.text_input(
+                    #     "password",
+                    #     "",
+                    #     key="login-password",
+                    #     type="password"
+                    # )
 
                 login_form.subheader(form_name)
-                self.username = login_form.text_input('Username').lower()
+                self.username = login_form.text_input('Username')
                 st.session_state['username'] = self.username
                 self.password = login_form.text_input('Password', type='password')
-                if login_form.button('Login'):
-                    print(f"{self.username}")
-                    print(f"{self.password}")
-                    resp = api.system_login(self.username,self.password)
-                    print("sssss")
-                    print(resp)
+                if login_form.form_submit_button('Login'):
                     self._check_credentials()
 
         return st.session_state['name'], st.session_state['authentication_status'], st.session_state['username']
@@ -249,9 +279,9 @@ class Authenticate:
         password: str
             The updated plain text password.
         """
-        self.credentials['usernames'][username]['password'] = Hasher([password]).generate()[0]
+        self.credentials['usernames'][username]['password'] = Hasher.hash(password)
 
-    def reset_password(self, username: str, form_name: str, location: str='main') -> bool:
+    def reset_password(self,username: str, form_name: str, location: str='main') -> bool:
         """
         Creates a password reset widget.
 
@@ -322,10 +352,26 @@ class Authenticate:
         if not self.validator.validate_email(email):
             raise RegisterError('Email is not valid')
 
-        self.credentials['usernames'][username] = {'name': name, 
-            'password': Hasher([password]).generate()[0], 'email': email}
-        if preauthorization:
-            self.preauthorized['emails'].remove(email)
+        response = api.user_register(username, Hasher.hash(password),name,email)
+        if response is not None:
+            resp = json.load(response)
+            if resp['code'] == 200:
+                st.session_state['logout'] = None
+                # todo 待更新
+                self.credentials['usernames'][username] = {'name': name,
+                                                           'password': Hasher.hash(password), 'email': email}
+                if preauthorization:
+                    self.preauthorized['emails'].remove(email)
+            else:
+                raise RegisterError(f'用户注册失败 {resp}')
+        else:
+            raise RegisterError(f'用户注册失败 response为None')
+
+
+
+
+
+
 
     def register_user(self, form_name: str, location: str='main', preauthorization=True) -> bool:
         """
@@ -396,7 +442,7 @@ class Authenticate:
             New plain text password that should be transferred to user securely.
         """
         self.random_password = generate_random_pw()
-        self.credentials['usernames'][username]['password'] = Hasher([self.random_password]).generate()[0]
+        self.credentials['usernames'][username]['password'] = Hasher.hash(self.random_password)
         return self.random_password
 
     def forgot_password(self, form_name: str, location: str='main') -> tuple:
@@ -551,3 +597,9 @@ class Authenticate:
                     raise UpdateError('New and current values are the same')
             if len(new_value) == 0:
                 raise UpdateError('New value not provided')
+
+
+if __name__ == '__main__':
+    password = "1233323是的发送到发送33"
+    ff =Hasher.hash(password)
+    print(ff)

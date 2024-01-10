@@ -51,7 +51,7 @@ if __name__ == "__main__":
                 f"""<p align="right">当前版本：{VERSION}</p>""",
                 unsafe_allow_html=True,
             )
-            st.write(f'Welcome *{st.session_state["username"]}*')
+            st.write(f'Welcome *{st.session_state["name"]}* ({st.session_state["username"]})')
             authenticator.logout('退出系统', 'sidebar')
             options = list(pages)
             icons = [x["icon"] for x in pages.values()]
@@ -64,8 +64,9 @@ if __name__ == "__main__":
                 # menu_icon="chat-quote",
                 default_index=default_index,
             )
-            if "logout" in st.session_state and st.session_state['logout'] == True:
-                st.success('成功登出系统')
+
+        if "logout" in st.session_state and st.session_state['logout'] == True:
+            st.success('成功登出系统')
 
         if selected_page in pages:
             pages[selected_page]["func"](api=api, is_lite=is_lite)
@@ -85,16 +86,20 @@ if __name__ == "__main__":
                 f"""<p align="right">当前版本：{VERSION}</p>""",
                 unsafe_allow_html=True,
             )
-        name,status,username = authenticator.login(api=api,form_name='用户登录',location='sidebar')
+        name, status, username = authenticator.login(form_name='用户登录', location='sidebar')
         if status == True:
             st.success('登录成功')
         elif status == False:
             st.error('登录失败')
+
         try:
-            if authenticator.register_user('用户注册','sidebar', preauthorization=False):
-                st.success('User registered successfully')
+            if authenticator.register_user('用户注册', 'sidebar', preauthorization=False):
+                st.success('用户注册成功')
         except Exception as e:
             st.error(e)
+
+
+
 
 
 

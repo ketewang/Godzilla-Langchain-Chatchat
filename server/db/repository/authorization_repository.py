@@ -9,8 +9,8 @@ def add_authorization_to_db(session, username: str, password, name, email,
     """
     新增用户记录
     """
-
-    au = AuthorizationModel(token=uuid.uuid4().hex, username=username, password=password, name=name,
+    print("新增用户记录")
+    au = AuthorizationModel(username=username, password=password, name=name,
                      email=email,
                      authorization_data=authorization_data)
     session.add(au)
@@ -28,18 +28,18 @@ def get_authorization_by_username(session, username) -> AuthorizationModel:
 
 
 @with_session
-def verify_authorization_by_username_password(session, username,password) -> bool:
+def verify_authorization_by_username_password(session, username,password) -> (bool,str):
     """
     查询用户记录
     """
     m = session.query(AuthorizationModel).filter_by(username=username,password=password).first()
 
     if m:
-        print("验证成功")
-        return True
+        print("verify_authorization_by_username_password 验证成功")
+        return True,m.name
     else:
-        print("验证失败")
-        return False
+        print("verify_authorization_by_username_password 验证失败")
+        return False,None
 
 
 @with_session
@@ -56,19 +56,19 @@ def reset_password(session, username,password) -> bool:
     else:
         return False
 
-@with_session
-def refresh_token(session, username) -> bool:
-    """
-    查询用户记录
-    """
-    m = session.query(AuthorizationModel).filter_by(username=username).first()
-
-    if m:
-        m.token = uuid.uuid4().hex
-        session.commit()
-        return True
-    else:
-        return False
+# @with_session
+# def refresh_token(session, username) -> bool:
+#     """
+#     刷新token
+#     """
+#     m = session.query(AuthorizationModel).filter_by(username=username).first()
+#
+#     if m:
+#         m.token = uuid.uuid4().hex
+#         session.commit()
+#         return True
+#     else:
+#         return False
 
 
 if __name__ == '__main__':

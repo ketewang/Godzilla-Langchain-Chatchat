@@ -1010,6 +1010,27 @@ class ApiRequest:
         resp = self.post("/auth/login", json=data)
         return self._get_response_value(resp)
 
+    def user_register(
+        self,
+        username: str,
+        password: str,
+        name: str,
+        email: str,
+    ):
+        '''
+        用户注册
+        '''
+        data = {
+            "username": username,
+            "password": password,
+            "name": name,
+            "email": email,
+        }
+        print(data)
+        resp = self.post("/auth/user_register", json=data)
+        return self._get_response_value(resp)
+
+
 class AsyncApiRequest(ApiRequest):
     def __init__(self, base_url: str = api_address(), timeout: float = HTTPX_DEFAULT_TIMEOUT):
         super().__init__(base_url, timeout)
@@ -1043,6 +1064,9 @@ def check_success_msg(data: Union[str, dict, list], key: str = "msg") -> str:
 if __name__ == "__main__":
     api = ApiRequest()
     aapi = AsyncApiRequest()
+
+
+
 
     # with api.chat_chat("你好") as r:
     #     for t in r.iter_text(None):
