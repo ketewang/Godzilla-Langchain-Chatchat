@@ -88,9 +88,9 @@ if __name__ == "__main__":
             )
         name, status, username = authenticator.login(form_name='用户登录', location='sidebar')
         if status == True:
-            st.success('登录成功')
+            st.success(f'{username} 登录成功')
         elif status == False:
-            st.error('登录失败')
+            st.error(f'{username} 登录失败')
 
         try:
             if authenticator.register_user('用户注册', 'sidebar', preauthorization=False):

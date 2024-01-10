@@ -2,6 +2,7 @@ from server.db.session import with_session
 from typing import Dict, List
 import uuid
 from server.db.models.authorization_model import AuthorizationModel
+from configs import logger, log_verbose
 
 @with_session
 def add_authorization_to_db(session, username: str, password, name, email,
@@ -9,12 +10,13 @@ def add_authorization_to_db(session, username: str, password, name, email,
     """
     新增用户记录
     """
-    print("新增用户记录")
+
     au = AuthorizationModel(username=username, password=password, name=name,
                      email=email,
                      authorization_data=authorization_data)
     session.add(au)
     session.commit()
+    logger.info(f"新增用户记录成功 username:{username} name:{name} email:{email} authorization_data:{authorization_data}")
     return au.id
 
 
@@ -35,25 +37,27 @@ def verify_authorization_by_username_password(session, username,password) -> (bo
     m = session.query(AuthorizationModel).filter_by(username=username,password=password).first()
 
     if m:
-        print("verify_authorization_by_username_password 验证成功")
+        logger.info(f"verify_authorization_by_username_password 验证成功 username: {username}")
         return True,m.name
     else:
-        print("verify_authorization_by_username_password 验证失败")
+        logger.warn(f"verify_authorization_by_username_password 验证失败 username: {username}")
         return False,None
 
 
 @with_session
 def reset_password(session, username,password) -> bool:
     """
-    查询用户记录
+    重置密码
     """
     m = session.query(AuthorizationModel).filter_by(username=username).first()
 
     if m:
         m.password = password
         session.commit()
+        logger.info(f"reset_password 重置密码成功 username: {username}")
         return True
     else:
+        logger.warn(f"reset_password 重置密码失败 username: {username}")
         return False
 
 # @with_session
