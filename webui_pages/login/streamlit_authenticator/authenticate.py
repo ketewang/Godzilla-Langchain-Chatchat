@@ -141,13 +141,15 @@ class Authenticate:
         if response is not None:
             resp = json.load(response)
             if resp['code'] == 200:
+                data = resp['data']
+                print(data)
                 #st.session_state['name'] = self.credentials['usernames'][self.username]['name']
                 self.exp_date = self._set_exp_date()
                 self.token = self._token_encode()
                 self.cookie_manager.set(self.cookie_name, self.token,
                                         expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
                 st.session_state['authentication_status'] = True
-                st.session_state['name'] = resp['data']
+                st.session_state['name'] = data['name']
                 st.session_state['logout'] = None
                 return True
 

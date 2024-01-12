@@ -11,6 +11,9 @@ import argparse
 import uvicorn
 from fastapi import Body
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Depends, FastAPI, Header, HTTPException
+from server.auth.MyOAuth2PasswordBearer import my_oauth2_scheme
+
 from starlette.responses import RedirectResponse
 from server.chat.chat import chat
 from server.chat.search_engine_chat import search_engine_chat
@@ -25,7 +28,9 @@ from server.utils import (BaseResponse, ListResponse, FastAPI, MakeFastAPIOfflin
                           get_server_configs, get_prompt_template)
 from typing import List, Literal
 
+
 nltk.data.path = [NLTK_DATA_PATH] + nltk.data.path
+
 
 
 async def document():
@@ -35,8 +40,10 @@ async def document():
 def create_app(run_mode: str = None):
     app = FastAPI(
         title="Langchain-Chatchat API Server",
-        version=VERSION
+        version=VERSION,
+        dependencies=[Depends(my_oauth2_scheme)]
     )
+
     MakeFastAPIOffline(app)
     # Add CORS middleware to allow all origins
     # 在config.py中设置OPEN_DOMAIN=True，允许跨域

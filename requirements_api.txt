@@ -67,3 +67,7 @@ arxiv>=2.0.0
 youtube-search>=2.1.2
 duckduckgo-search>=3.9.9
 metaphor-python>=0.1.23
+
+
+#auth
+Flask-Caching=2.1.0

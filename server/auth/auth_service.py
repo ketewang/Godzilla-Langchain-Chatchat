@@ -3,6 +3,8 @@ from server.utils import BaseResponse
 from fastapi import Body
 from httpx import codes
 from configs import logger, log_verbose
+from server.cache.cache_service import cache
+import uuid
 
 def user_login(username: str = Body("", max_length=64, description="用户名"),
                password: str = Body("", max_length=256, description="密码")):
@@ -14,7 +16,16 @@ def user_login(username: str = Body("", max_length=64, description="用户名"),
         ret,name = verify_authorization_by_username_password(username,password)
         if ret:
             logger.info(f"user_login 登录成功 username: {username}")
-            return BaseResponse(code=codes.OK,msg=f"登录成功 username:{username}",data=name)
+            user_token_key = f"user_token_{username}";
+            if cache.cache.has(user_token_key):
+                token = cache.cache.get(user_token_key)
+            else:
+                token = uuid.uuid4().hex
+                cache.cache.set(user_token_key,token)
+                cache.cache.set(token, "data")
+            data = {'name': name,
+                    'token': token}
+            return BaseResponse(code=codes.OK,msg=f"登录成功 username:{username}",data=data)
         else:
             logger.warn(f"验证失败，user_login登录失败 username:{username}")
             return BaseResponse(code=codes.FORBIDDEN, msg=f"验证失败，登录失败 username:{username}")
