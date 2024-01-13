@@ -7,7 +7,7 @@ import os
 import sys
 from configs import VERSION
 from server.utils import api_address
-from webui_pages.login.login import authenticator
+from webui_pages.login.streamlit_authenticator.authenticate_page import authenticator
 
 
 

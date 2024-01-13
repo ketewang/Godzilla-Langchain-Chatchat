@@ -13,6 +13,10 @@ from webui_pages.login.streamlit_authenticator.utils import generate_random_pw
 from webui_pages.login.streamlit_authenticator.exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
 from webui_pages.utils import *
 
+import yaml
+from yaml.loader import SafeLoader
+
+
 
 api = ApiRequest(base_url=api_address())
 
@@ -602,6 +606,17 @@ class Authenticate:
             if len(new_value) == 0:
                 raise UpdateError('New value not provided')
 
+
+with open('configs/login_config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+authenticator = Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days'],
+    config['preauthorized']
+)
 
 
 if __name__ == '__main__':
