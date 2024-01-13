@@ -56,6 +56,10 @@ def file_exists(kb: str, selected_rows: List) -> Tuple[str, str]:
 
 
 def knowledge_base_page(api: ApiRequest, is_lite: bool = None):
+
+    if "token" in st.session_state:
+        api.setToken(st.session_state["token"])
+
     try:
         kb_list = {x["kb_name"]: x for x in get_kb_details()}
     except Exception as e:

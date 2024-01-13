@@ -362,6 +362,9 @@ class Authenticate:
         if not self.validator.validate_email(email):
             raise RegisterError('Email is not valid')
 
+        if 'token' in st.session_state:
+            api.setToken(st.session_state['token'])
+
         response = api.user_register(username, Hasher.hash(password),name,email)
         if response is not None:
             resp = json.load(response)

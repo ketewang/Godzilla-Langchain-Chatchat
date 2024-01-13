@@ -57,8 +57,13 @@ class ApiRequest:
                                             authorization=self.authorization)
         return self._client
 
-    def setAuthorization(self,authorization: str = None):
-        self.authorization = authorization
+    def setToken(self,token: str = None):
+        self.authorization = f"bearer {token}"
+        print(f"setAuthorization:{self.authorization}")
+        self._client = get_httpx_client(base_url=self.base_url,
+                                        use_async=self._use_async,
+                                        timeout=self.timeout,
+                                        authorization=self.authorization)
 
 
     def get(

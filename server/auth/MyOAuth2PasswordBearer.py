@@ -3,7 +3,7 @@ from fastapi import Request, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
 from server.cache.cache_service import cache
-
+from configs import logger, log_verbose
 
 
 
@@ -24,11 +24,11 @@ class MyOAuth2PasswordBearer(OAuth2PasswordBearer):
 
     async def __call__(self, request: Request) -> Optional[str]:
         path: str = request.get('path')
-        print(f"request path:{path}")
+        logger.info(f"request path:{path}")
         if path.startswith('/auth/login') | path.startswith('/docs'):
             return ""
         authorization: str = request.headers.get("Authorization")
-        print(f"request authorization:{authorization}")
+        logger.info(f"request authorization:{authorization}")
         scheme, param = get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:
@@ -42,11 +42,12 @@ class MyOAuth2PasswordBearer(OAuth2PasswordBearer):
         else:
             #todo 验证
             token = authorization.replace("bearer ","")
-            print(f"OAuth2 token:{token}")
+            logger.info(f"OAuth2 token:{token}")
             if token and cache.cache.has(token):
                 #读cache
-                print(f"token {token}存在")
+                logger.info(f"token {token}存在")
             else:
+                logger.info(f"token {token}不存在cache中")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="401 UNAUTHORIZED bad token",

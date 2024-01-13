@@ -18,7 +18,6 @@ api = ApiRequest(base_url=api_address())
 if __name__ == "__main__":
 
     is_lite = "lite" in sys.argv
-
     if "authentication_status" in st.session_state and st.session_state["authentication_status"] == True:
         st.set_page_config(
             "Godzilla-AI-Chat WebUI",
@@ -90,6 +89,7 @@ if __name__ == "__main__":
         name, status, username = authenticator.login(form_name='用户登录', location='sidebar')
         if status == True:
             st.success(f'{username} 登录成功')
+            print(f"登录成功 {st.session_state['token']}")
         elif status == False:
             st.error(f'{username} 登录失败')
 

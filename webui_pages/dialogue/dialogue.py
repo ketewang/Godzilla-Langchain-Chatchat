@@ -98,6 +98,8 @@ def parse_command(text: str, modal: Modal) -> bool:
 
 
 def dialogue_page(api: ApiRequest, is_lite: bool = False):
+    if 'token' in st.session_state:
+        api.setToken(st.session_state['token'])
     st.session_state.setdefault("conversation_ids", {})
     st.session_state["conversation_ids"].setdefault(chat_box.cur_chat_name, uuid.uuid4().hex)
     st.session_state.setdefault("file_chat_id", None)
