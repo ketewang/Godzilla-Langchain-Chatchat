@@ -41,6 +41,7 @@ class MyOAuth2PasswordBearer(OAuth2PasswordBearer):
         else:
             #todo 验证
             token = authorization.replace("bearer ","")
+            print(f"OAuth2 token:{token}")
             if token and cache.cache.has(token):
                 #读cache
                 print(f"token {token}存在")

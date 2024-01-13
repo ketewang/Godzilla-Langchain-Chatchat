@@ -14,7 +14,7 @@ from langchain.llms import OpenAI, AzureOpenAI, Anthropic
 import httpx
 from typing import Literal, Optional, Callable, Generator, Dict, Any, Awaitable, Union, Tuple
 import logging
-
+from httpx import Headers
 
 async def wrap_done(fn: Awaitable, event: asyncio.Event):
     """Wrap an awaitable with a event to signal when it's done or an exception is raised."""
@@ -560,11 +560,13 @@ def get_httpx_client(
         use_async: bool = False,
         proxies: Union[str, Dict] = None,
         timeout: float = HTTPX_DEFAULT_TIMEOUT,
+        authorization: str = None,
         **kwargs,
 ) -> Union[httpx.Client, httpx.AsyncClient]:
     '''
     helper to get httpx client with default proxies that bypass local addesses.
     '''
+
     default_proxies = {
         # do not use proxy for locahost
         "all://127.0.0.1": None,
@@ -611,9 +613,15 @@ def get_httpx_client(
         logger.info(f'{get_httpx_client.__class__.__name__}:kwargs: {kwargs}')
 
     if use_async:
-        return httpx.AsyncClient(**kwargs)
+        if authorization:
+            return httpx.AsyncClient(headers=Headers({"Authorization": authorization}),**kwargs)
+        else:
+            return httpx.AsyncClient(**kwargs)
     else:
-        return httpx.Client(**kwargs)
+        if authorization:
+            return httpx.Client(headers=Headers({"Authorization": authorization}),**kwargs)
+        else:
+            return httpx.Client(**kwargs)
 
 
 def get_server_configs() -> Dict:

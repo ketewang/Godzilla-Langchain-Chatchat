@@ -1,6 +1,6 @@
 import yaml
 from yaml.loader import SafeLoader
-from webui_pages.login.streamlit_authenticator.authenticate import Authenticate
+from webui_pages.login.streamlit_authenticator.authenticate_page import Authenticate
 
 
 with open('configs/login_config.yaml') as file:
@@ -18,8 +18,8 @@ authenticator = Authenticate(
 #     print("login_page open")
 #     authenticator.login('登录', 'main')
 
-
-
-# name1,authentication_status1,username1 = authenticator.login('登录', 'main')
 #
-# authenticator.logout('Logout')
+#
+# # name1,authentication_status1,username1 = authenticator.login('登录', 'main')
+# #
+# # authenticator.logout('Logout')

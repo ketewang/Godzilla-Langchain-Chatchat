@@ -10,6 +10,7 @@ from server.utils import api_address
 from webui_pages.login.login import authenticator
 
 
+
 api = ApiRequest(base_url=api_address())
 
 

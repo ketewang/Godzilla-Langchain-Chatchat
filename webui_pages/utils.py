@@ -40,19 +40,26 @@ class ApiRequest:
         self,
         base_url: str = api_address(),
         timeout: float = HTTPX_DEFAULT_TIMEOUT,
+        authorization: str = None
     ):
         self.base_url = base_url
         self.timeout = timeout
         self._use_async = False
         self._client = None
+        self.authorization = authorization
 
     @property
     def client(self):
         if self._client is None or self._client.is_closed:
             self._client = get_httpx_client(base_url=self.base_url,
                                             use_async=self._use_async,
-                                            timeout=self.timeout)
+                                            timeout=self.timeout,
+                                            authorization=self.authorization)
         return self._client
+
+    def setAuthorization(self,authorization: str = None):
+        self.authorization = authorization
+
 
     def get(
         self,
@@ -1032,8 +1039,8 @@ class ApiRequest:
 
 
 class AsyncApiRequest(ApiRequest):
-    def __init__(self, base_url: str = api_address(), timeout: float = HTTPX_DEFAULT_TIMEOUT):
-        super().__init__(base_url, timeout)
+    def __init__(self, base_url: str = api_address(), timeout: float = HTTPX_DEFAULT_TIMEOUT, authorization: str = None):
+        super().__init__(base_url, timeout, authorization)
         self._use_async = True
 
 
