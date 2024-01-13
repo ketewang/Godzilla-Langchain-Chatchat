@@ -157,6 +157,8 @@ class Authenticate:
                 st.session_state['authentication_status'] = True
                 st.session_state['name'] = data['name']
                 st.session_state['logout'] = None
+                st.session_state['token'] = data['token']
+                print(f"get token:{data['token']}")
                 return True
 
         st.session_state['authentication_status'] = False

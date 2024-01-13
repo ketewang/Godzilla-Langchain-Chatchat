@@ -28,6 +28,7 @@ class MyOAuth2PasswordBearer(OAuth2PasswordBearer):
         if path.startswith('/auth/login') | path.startswith('/docs'):
             return ""
         authorization: str = request.headers.get("Authorization")
+        print(f"request authorization:{authorization}")
         scheme, param = get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:

@@ -22,7 +22,7 @@ def user_login(username: str = Body("", max_length=64, description="用户名"),
             else:
                 token = uuid.uuid4().hex
                 cache.cache.set(user_token_key,token)
-                cache.cache.set(token, "data")
+                cache.cache.set('token', token)
             data = {'name': name,
                     'token': token}
             return BaseResponse(code=codes.OK,msg=f"登录成功 username:{username}",data=data)
