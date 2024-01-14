@@ -27,7 +27,7 @@ from server.llm_api import (list_running_models, list_config_models,
 from server.utils import (BaseResponse, ListResponse, FastAPI, MakeFastAPIOffline,
                           get_server_configs, get_prompt_template)
 from typing import List, Literal
-
+from httpx import codes
 
 nltk.data.path = [NLTK_DATA_PATH] + nltk.data.path
 
@@ -35,6 +35,12 @@ nltk.data.path = [NLTK_DATA_PATH] + nltk.data.path
 
 async def document():
     return RedirectResponse(url="/docs")
+
+# 获取所有定义的URL路径
+all_urls = []
+def get_all_routes():
+    return BaseResponse(code=codes.OK, msg=f"get_all_routes ok",data=all_urls)
+
 
 
 def create_app(run_mode: str = None):
@@ -57,6 +63,9 @@ def create_app(run_mode: str = None):
             allow_headers=["*"],
         )
     mount_app_routes(app, run_mode=run_mode)
+
+    for route in app.routes:
+        all_urls.append({"name":route.name,"url":route.path})
     return app
 
 
@@ -64,6 +73,8 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
     app.get("/",
             response_model=BaseResponse,
             summary="swagger 文档")(document)
+
+
 
     # Tag: Chat
     app.post("/chat/chat",
@@ -123,6 +134,8 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
              summary="获取服务器支持的搜索引擎",
              )(list_search_engines)
 
+    app.post("/server/all_urls",
+            summary="所有的urls")(get_all_routes)
 
     @app.post("/server/get_prompt_template",
              tags=["Server State"],

@@ -8,7 +8,7 @@ import sys
 from configs import VERSION
 from server.utils import api_address
 from webui_pages.login.streamlit_authenticator.authenticate_page import authenticator
-
+from webui_pages.admin.user_page import user_management_page
 
 
 api = ApiRequest(base_url=api_address())
@@ -37,6 +37,11 @@ if __name__ == "__main__":
                 "icon": "hdd-stack",
                 "func": knowledge_base_page,
             },
+            "admin管理":{
+                "icon": "hdd-stack",
+                "func": user_management_page,
+
+            }
         }
 
         with st.sidebar:
