@@ -270,6 +270,7 @@ class Authenticate:
                 st.session_state['name'] = None
                 st.session_state['username'] = None
                 st.session_state['authentication_status'] = None
+                st.session_state['token'] = None
         elif location == 'sidebar':
             if st.sidebar.button(button_name, key):
                 self.cookie_manager.delete(self.cookie_name)
@@ -277,6 +278,7 @@ class Authenticate:
                 st.session_state['name'] = None
                 st.session_state['username'] = None
                 st.session_state['authentication_status'] = None
+                st.session_state['token'] = None
 
     def _update_password(self, username: str, password: str):
         """
