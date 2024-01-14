@@ -1,4 +1,4 @@
-from server.db.repository import add_authorization_to_db,verify_authorization_by_username_password
+from server.db.repository import add_authorization_to_db,verify_authorization_by_username_password,query_users_from_db
 from server.utils import BaseResponse
 from fastapi import Body
 from httpx import codes
@@ -58,6 +58,15 @@ def user_register(username: str = Body("", max_length=64, description="用户名
 
 
 
-
-
+def search_users(keyword: str = Body("", max_length=64, description="关键字"),
+                 foo: str = Body("", max_length=64, description=""),
+                 ):
+    try:
+        users = query_users_from_db(keyword)
+        return BaseResponse(code=codes.OK, msg=f"查询用户 ok",data=users)
+    except Exception as e:
+        msg = f"查询用户出错： {e}"
+        logger.error(f'{e.__class__.__name__}: {msg}',
+                     exc_info=e if log_verbose else None)
+        return BaseResponse(code=codes.INTERNAL_SERVER_ERROR, msg=msg)
 

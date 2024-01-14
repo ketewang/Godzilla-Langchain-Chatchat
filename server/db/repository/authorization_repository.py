@@ -3,6 +3,7 @@ from typing import Dict, List
 import uuid
 from server.db.models.authorization_model import AuthorizationModel
 from configs import logger, log_verbose
+from sqlalchemy import desc,or_,and_
 
 @with_session
 def add_authorization_to_db(session, username: str, password, name, email,
@@ -27,6 +28,27 @@ def get_authorization_by_username(session, username) -> AuthorizationModel:
     """
     m = session.query(AuthorizationModel).filter_by(username=username).first()
     return m
+
+@with_session
+def query_users_from_db(session,keyword: str=None):
+    """
+        查询用户
+    """
+    if keyword is not None and keyword != '':
+        print(f"keyword:{keyword}")
+        list = session.query(AuthorizationModel).filter(or_(AuthorizationModel.username.like(f"%{keyword}%"),AuthorizationModel.name.like(f"%{keyword}%"),AuthorizationModel.email.like(f"%{keyword}%"))).order_by(AuthorizationModel.username).all()
+    else:
+        list = session.query(AuthorizationModel).order_by(AuthorizationModel.username).all()
+
+    ret = []
+    if list is not None:
+        for authorization in list:
+            ret.append({
+                "username": authorization.username,
+                "name": authorization.name,
+                "email": authorization.email,
+            })
+    return ret
 
 
 @with_session

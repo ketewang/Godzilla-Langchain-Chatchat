@@ -1054,6 +1054,22 @@ class ApiRequest:
         resp = self.post("/server/all_urls", json=data)
         return self._get_response_value(resp)
 
+    def system_search_users(
+        self,
+        keyword: str = None,
+    ):
+        '''
+        查询用户
+        '''
+        data = {
+            "keyword": keyword,
+            "foo":"foo",
+        }
+        resp = self.post("/server/search_users", json=data)
+        return self._get_response_value(resp)
+
+
+
 class AsyncApiRequest(ApiRequest):
     def __init__(self, base_url: str = api_address(), timeout: float = HTTPX_DEFAULT_TIMEOUT, authorization: str = None):
         super().__init__(base_url, timeout, authorization)
