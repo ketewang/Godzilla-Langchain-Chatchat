@@ -35,7 +35,7 @@ def query_users_from_db(session,keyword: str=None):
         查询用户
     """
     if keyword is not None and keyword != '':
-        print(f"keyword:{keyword}")
+        #print(f"keyword:{keyword}")
         list = session.query(AuthorizationModel).filter(or_(AuthorizationModel.username.like(f"%{keyword}%"),AuthorizationModel.name.like(f"%{keyword}%"),AuthorizationModel.email.like(f"%{keyword}%"))).order_by(AuthorizationModel.username).all()
     else:
         list = session.query(AuthorizationModel).order_by(AuthorizationModel.username).all()

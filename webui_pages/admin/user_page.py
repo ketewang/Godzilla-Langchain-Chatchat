@@ -16,15 +16,29 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
     with tab1:
         st.header("用户")
 
-        response1 = api.system_search_users("e")
-        print(response1)
+        response1 = api.system_search_users("")
+        #print(response1)
         if response1 is not None:
             resp1 = json.load(response1)
-            print(resp1)
+            #print(resp1)
             if resp1['code'] == 200:
                 users = resp1['data']
                 df2 = pd.DataFrame(users)
-                st.data_editor(df2)
+                edited_user_df =st.data_editor(df2,
+                               disabled=["username"],
+                               on_change=user_onchange,
+                               )
+                print(df2.items)
+                print(edited_user_df)
+                for i in range(df2["username"].size):
+                    print(f"i:{i}")
+                    if df2.loc[i]["name"] == edited_user_df.loc[i]["name"] and df2.loc[i]["email"] == edited_user_df.loc[i]["email"]:
+                        continue
+                    else:
+                        print(f"go update edited: {edited_user_df.loc[i]['name']} {edited_user_df.loc[i]['email']}")
+
+
+
 
 
 
@@ -41,7 +55,7 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
 
         for item in urls:
             item['enable'] = True
-        print(urls)
+        #print(urls)
 
 
         df = pd.DataFrame(urls)
@@ -65,7 +79,10 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
         st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
 
 
-
+def user_onchange(** kwargs):
+    print("user_onchange")
+    print(kwargs)
+    pass
 
 
 
