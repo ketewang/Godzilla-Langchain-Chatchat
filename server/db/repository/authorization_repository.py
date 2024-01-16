@@ -67,6 +67,7 @@ def query_users_from_db(session,keyword: str=None):
                 "username": authorization.username,
                 "name": authorization.name,
                 "email": authorization.email,
+                "create_time": authorization.create_time,
             })
     return ret
 

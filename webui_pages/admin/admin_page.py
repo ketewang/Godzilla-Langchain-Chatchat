@@ -1,7 +1,7 @@
 import streamlit as st
 from webui_pages.utils import *
 import pandas as pd
-
+from webui_pages.login.streamlit_authenticator.authenticate_page import authenticator
 
 
 
@@ -11,7 +11,7 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
     if 'token' in st.session_state:
         api.setToken(st.session_state['token'])
 
-    tab1, tab2 = st.tabs([":male-office-worker: 用户", "其他"])
+    tab1, tab2 = st.tabs([":male-office-worker: 用户管理", ":memo:用户注册"])
 
     with tab1:
         st.header("用户")
@@ -25,29 +25,23 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
                 users = resp1['data']
                 df_users = pd.DataFrame(users)
                 edited_user_df =st.data_editor(df_users,
-                               disabled=["username"],
+                               disabled=["username","create_time"],
                                on_change=user_onchange,
                                )
-                print(df_users.items)
-                print(edited_user_df)
+                #print(df_users.items)
+                #print(edited_user_df)
                 for i in range(df_users["username"].size):
-                    print(f"i:{i}")
                     if df_users.loc[i]["name"] == edited_user_df.loc[i]["name"] and df_users.loc[i]["email"] == edited_user_df.loc[i]["email"]:
                         continue
                     else:
-                        print(f"go update edited: {edited_user_df.loc[i]['name']} {edited_user_df.loc[i]['email']}")
+                        logger.info(f"go update edited: {edited_user_df.loc[i]['name']} {edited_user_df.loc[i]['email']}")
                         resp_sub_1 = api.system_update_user_info(edited_user_df.loc[i]['username'],edited_user_df.loc[i]['name'],edited_user_df.loc[i]['email'])
                         if resp_sub_1 is not None:
                             resp_sub_1 = json.load(resp_sub_1)
                             if resp_sub_1['code'] == 200:
-                                st.write(resp_sub_1['msg'])
-
-
-
-
-
-
-
+                                st.success(resp_sub_1['msg'])
+                            else:
+                                st.error(resp_sub_1['msg'])
 
 
         urls = []
@@ -80,8 +74,11 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
         )
 
     with tab2:
-        st.header("A dog")
-        st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
+        try:
+            if authenticator.register_user('用户注册', 'main', preauthorization=False):
+                st.success('用户注册成功')
+        except Exception as e:
+            st.error(e)
 
 
 def user_onchange(** kwargs):

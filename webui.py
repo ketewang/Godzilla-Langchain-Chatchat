@@ -8,7 +8,7 @@ import sys
 from configs import VERSION
 from server.utils import api_address
 from webui_pages.login.streamlit_authenticator.authenticate_page import authenticator
-from webui_pages.admin.user_page import user_management_page
+from webui_pages.admin.admin_page import user_management_page
 
 
 api = ApiRequest(base_url=api_address())
@@ -98,11 +98,11 @@ if __name__ == "__main__":
         elif status == False:
             st.error(f'{username} 登录失败')
 
-        try:
-            if authenticator.register_user('用户注册', 'sidebar', preauthorization=False):
-                st.success('用户注册成功')
-        except Exception as e:
-            st.error(e)
+        # try:
+        #     if authenticator.register_user('用户注册', 'sidebar', preauthorization=False):
+        #         st.success('用户注册成功')
+        # except Exception as e:
+        #     st.error(e)
 
 
 
