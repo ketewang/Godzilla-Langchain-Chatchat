@@ -1068,6 +1068,22 @@ class ApiRequest:
         resp = self.post("/server/search_users", json=data)
         return self._get_response_value(resp)
 
+    def system_update_user_info(
+            self,
+            username: str,
+            name: str,
+            email: str
+    ):
+        '''
+        修改用户信息
+        '''
+        data = {
+            "username": username,
+            "name": name,
+            "email": email,
+        }
+        resp = self.post("/server/update_user_info", json=data)
+        return self._get_response_value(resp)
 
 
 class AsyncApiRequest(ApiRequest):

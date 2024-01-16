@@ -23,19 +23,24 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
             #print(resp1)
             if resp1['code'] == 200:
                 users = resp1['data']
-                df2 = pd.DataFrame(users)
-                edited_user_df =st.data_editor(df2,
+                df_users = pd.DataFrame(users)
+                edited_user_df =st.data_editor(df_users,
                                disabled=["username"],
                                on_change=user_onchange,
                                )
-                print(df2.items)
+                print(df_users.items)
                 print(edited_user_df)
-                for i in range(df2["username"].size):
+                for i in range(df_users["username"].size):
                     print(f"i:{i}")
-                    if df2.loc[i]["name"] == edited_user_df.loc[i]["name"] and df2.loc[i]["email"] == edited_user_df.loc[i]["email"]:
+                    if df_users.loc[i]["name"] == edited_user_df.loc[i]["name"] and df_users.loc[i]["email"] == edited_user_df.loc[i]["email"]:
                         continue
                     else:
                         print(f"go update edited: {edited_user_df.loc[i]['name']} {edited_user_df.loc[i]['email']}")
+                        resp_sub_1 = api.system_update_user_info(edited_user_df.loc[i]['username'],edited_user_df.loc[i]['name'],edited_user_df.loc[i]['email'])
+                        if resp_sub_1 is not None:
+                            resp_sub_1 = json.load(resp_sub_1)
+                            if resp_sub_1['code'] == 200:
+                                st.write(resp_sub_1['msg'])
 
 
 

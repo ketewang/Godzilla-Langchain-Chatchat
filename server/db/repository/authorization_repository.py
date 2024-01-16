@@ -29,6 +29,26 @@ def get_authorization_by_username(session, username) -> AuthorizationModel:
     m = session.query(AuthorizationModel).filter_by(username=username).first()
     return m
 
+
+@with_session
+def update_name_email(session, username,name,email):
+    """
+    修改姓名与邮箱
+    """
+    m = session.query(AuthorizationModel).filter_by(username=username).first()
+
+    if m:
+        m.name = name
+        m.email = email
+        session.commit()
+        logger.info(f"update_name_email 修改姓名与邮箱成功 username: {username}")
+        return True
+    else:
+        logger.warn(f"update_name_email 修改姓名与邮箱失败 username: {username}")
+        return False
+
+
+
 @with_session
 def query_users_from_db(session,keyword: str=None):
     """
