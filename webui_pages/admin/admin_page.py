@@ -43,7 +43,6 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
                             else:
                                 st.error(resp_sub_1['msg'])
 
-
         urls = []
         response = api.system_urls()
         if response is not None:
@@ -51,24 +50,25 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
             if resp['code'] == 200:
                 urls = resp['data']
 
+        options = st.multiselect(
+            '选择权限',
+            urls,
+            [])
 
-        for item in urls:
-            item['enable'] = True
+        st.write('You selected:', options)
         #print(urls)
 
 
-        df = pd.DataFrame(urls)
-
-
+        df = pd.DataFrame(options)
         edited_df = st.data_editor(
             df,
-            column_config={
-                "enable": st.column_config.CheckboxColumn(
-                    "grant",
-                    help="Grant your **functions** ",
-                    default=False,
-                )
-            },
+            # column_config={
+            #     "enable": st.column_config.CheckboxColumn(
+            #         "grant",
+            #         help="Grant your **functions** ",
+            #         default=False,
+            #     )
+            # },
             disabled=["name", "url"],
             hide_index=True,
         )

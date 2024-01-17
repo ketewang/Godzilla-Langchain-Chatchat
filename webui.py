@@ -38,7 +38,7 @@ if __name__ == "__main__":
                 "func": knowledge_base_page,
             },
             "admin管理":{
-                "icon": "hdd-stack",
+                "icon": "gear",
                 "func": user_management_page,
 
             }
