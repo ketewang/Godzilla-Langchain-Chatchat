@@ -45,7 +45,7 @@ def get_all_routes():
 
 def create_app(run_mode: str = None):
     app = FastAPI(
-        title="Langchain-Chatchat API Server",
+        title="Godzilla-Langchain-Chatchat API Server",
         version=VERSION,
         dependencies=[Depends(my_oauth2_scheme)]
     )
