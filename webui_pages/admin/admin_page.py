@@ -67,6 +67,8 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
                                     st.error(resp_sub_1['msg'])
                             else:
                                 st.error(resp_sub_1)
+            else:
+                st.error(resp1)
 
 
     with tab2:
@@ -82,6 +84,8 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
             if 'code' in resp:
                 if resp['code'] == 200:
                     urls = resp['data']
+            else:
+                st.error(resp1)
 
 
 

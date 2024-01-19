@@ -374,9 +374,8 @@ class Authenticate:
         response = api.user_register(username, Hasher.hash(password),name,email,role)
         if response is not None:
             resp = json.load(response)
-            if resp['code'] == 200:
+            if 'code' in resp and resp['code'] == 200:
                 st.session_state['logout'] = None
-                # todo 待更新
                 self.credentials['usernames'][username] = {'name': name,
                                                            'password': Hasher.hash(password), 'email': email, 'role': role}
                 if preauthorization:

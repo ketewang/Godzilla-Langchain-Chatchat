@@ -141,10 +141,16 @@ def knowledge_base_page(api: ApiRequest, is_lite: bool = None):
                     vector_store_type=vs_type,
                     embed_model=embed_model,
                 )
-                st.toast(ret.get("msg", " "))
-                st.session_state["selected_kb_name"] = kb_name
-                st.session_state["selected_kb_info"] = kb_info
-                st.rerun()
+
+                if 'code' in ret:
+                    st.toast(ret.get("msg", " "))
+                    st.session_state["selected_kb_name"] = kb_name
+                    st.session_state["selected_kb_info"] = kb_info
+                    st.rerun()
+                else:
+                    st.error(ret)
+
+
 
     elif selected_kb:
         kb = selected_kb
@@ -184,10 +190,14 @@ def knowledge_base_page(api: ApiRequest, is_lite: bool = None):
                                      chunk_size=chunk_size,
                                      chunk_overlap=chunk_overlap,
                                      zh_title_enhance=zh_title_enhance)
-            if msg := check_success_msg(ret):
-                st.toast(msg, icon="✔")
-            elif msg := check_error_msg(ret):
-                st.toast(msg, icon="✖")
+            if 'code' in ret:
+                if msg := check_success_msg(ret):
+                    st.toast(msg, icon="✔")
+                elif msg := check_error_msg(ret):
+                    st.toast(msg, icon="✖")
+            else:
+                st.error(ret)
+
 
         st.divider()
 
