@@ -32,7 +32,7 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
                 df_users = pd.DataFrame(users)
                 edited_user_df = st.data_editor(df_users,
                                disabled=["username","authorization_data","create_time"],
-                               on_change=user_onchange,
+                               #on_change=user_onchange,
                                column_config={
                                         "authorization_data": None,#隐藏
                                         "role": st.column_config.SelectboxColumn(
@@ -46,29 +46,48 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
                                )
                 #print(df_users.items)
                 #print(edited_user_df)
-                for i in range(df_users["username"].size):
-                    if df_users.loc[i]["name"] == edited_user_df.loc[i]["name"] and df_users.loc[i]["email"] == edited_user_df.loc[i]["email"] and df_users.loc[i]["role"] == edited_user_df.loc[i]["role"]:
-                        continue
-                    else:
-                        logger.info(f"go update edited: {edited_user_df.loc[i]['name']} {edited_user_df.loc[i]['email']} {edited_user_df.loc[i]['role']}")
-                        if edited_user_df.loc[i]['authorization_data'] == None or edited_user_df.loc[i]['authorization_data'] == '':
-                            authenticator_data_json ={}
-                        else:
-                            authenticator_data_json = eval(edited_user_df.loc[i]['authorization_data']) #json.loads(edited_user_df.loc[i]['authorization_data'])
-                        authenticator_data_json['role'] = edited_user_df.loc[i]['role']
-                        df_users.loc[i]['authorization_data'] = json.dumps(authenticator_data_json)
-                        resp_sub_1 = api.system_update_user_info(edited_user_df.loc[i]['username'],edited_user_df.loc[i]['name'],edited_user_df.loc[i]['email'],authenticator_data_json)
-                        if resp_sub_1 is not None:
-                            resp_sub_1 = json.load(resp_sub_1)
-                            if 'code' in resp_sub_1:
-                                if resp_sub_1['code'] == 200:
-                                    st.success(resp_sub_1['msg'])
-                                else:
-                                    st.error(resp_sub_1['msg'])
-                            else:
-                                st.error(resp_sub_1)
             else:
                 st.error(resp1)
+
+        if st.button("保存更改"):
+            changed_item_count = 0
+            for i in range(df_users["username"].size):
+                if df_users.loc[i]["name"] == edited_user_df.loc[i]["name"] and df_users.loc[i]["email"] == \
+                        edited_user_df.loc[i]["email"] and df_users.loc[i]["role"] == edited_user_df.loc[i]["role"]:
+                    continue
+                else:
+                    changed_item_count += 1
+                    logger.info(
+                        f"go update edited: {edited_user_df.loc[i]['name']} {edited_user_df.loc[i]['email']} {edited_user_df.loc[i]['role']}")
+                    if edited_user_df.loc[i]['authorization_data'] == None or edited_user_df.loc[i]['authorization_data'] == '':
+                        authenticator_data_json = {}
+                    else:
+                        authenticator_data_json = eval(edited_user_df.loc[i][
+                                                           'authorization_data'])  # json.loads(edited_user_df.loc[i]['authorization_data'])
+                    authenticator_data_json['role'] = edited_user_df.loc[i]['role']
+                    df_users.loc[i]['authorization_data'] = json.dumps(authenticator_data_json)
+                    resp_sub_1 = api.system_update_user_info(edited_user_df.loc[i]['username'],
+                                                             edited_user_df.loc[i]['name'],
+                                                             edited_user_df.loc[i]['email'], authenticator_data_json)
+                    if resp_sub_1 is not None:
+                        resp_sub_1 = json.load(resp_sub_1)
+                        if 'code' in resp_sub_1:
+                            if resp_sub_1['code'] == 200:
+                                st.toast(f":green[{resp_sub_1['msg']}]",icon='🎉')
+                            else:
+                                st.toast(f":red[{resp_sub_1['msg']}]", icon='❌')
+                                #st.error(resp_sub_1['msg'])
+                        else:
+                            st.toast(f":red[{resp_sub_1}]", icon='❌')
+                            #st.error(resp_sub_1)
+
+            if changed_item_count == 0:
+                st.toast(":yellow[没有数据需要保存]", icon='💡')
+
+
+
+
+
 
 
     with tab2:
@@ -130,10 +149,10 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
             st.error(e)
 
 
-def user_onchange(** kwargs):
-    print("user_onchange")
-    print(kwargs)
-    pass
+# def user_onchange(** kwargs):
+#     print("user_onchange")
+#     print(kwargs)
+#     pass
 
 
 

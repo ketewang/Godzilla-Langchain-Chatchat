@@ -21,11 +21,12 @@ class MyOAuth2PasswordBearer(OAuth2PasswordBearer):
             description=None,
             auto_error=True
         )
+        self.ignore_urls =["/auth/login","/docs","/knowledge_base/download_doc"]
 
     async def __call__(self, request: Request) -> Optional[str]:
         path: str = request.get('path')
         logger.info(f"request path:{path}")
-        if path.startswith('/auth/login') | path.startswith('/docs'):
+        if path in self.ignore_urls:
             return ""
         authorization: str = request.headers.get("Authorization")
         logger.info(f"request authorization:{authorization}")
