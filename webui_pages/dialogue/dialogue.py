@@ -13,12 +13,36 @@ import uuid
 from typing import List, Dict
 
 
-chat_box = ChatBox(
-    assistant_avatar=os.path.join(
-        "img",
-        "chatchat_icon_blue_square_v2.png"
-    )
-)
+# chat_box = ChatBox(
+#     assistant_avatar=os.path.join(
+#         "img",
+#         "chatchat_icon_blue_square_v2.png"
+#     )
+# )
+
+chat_box_dict = {}
+
+
+def get_chat_box_by_token():
+    if 'token' in st.session_state:
+        token = st.session_state['token']
+        if not token in chat_box_dict:
+            chat_box_dict[token] = ChatBox(
+                session_key=token,
+                assistant_avatar=os.path.join(
+                    "img",
+                    "chatchat_icon_blue_square_v2.png"
+                    )
+                )
+        return chat_box_dict[token]
+    else:
+        return None
+
+
+
+
+
+
 
 
 def get_messages_history(history_len: int, content_in_expander: bool = False) -> List[Dict]:
@@ -38,7 +62,7 @@ def get_messages_history(history_len: int, content_in_expander: bool = False) ->
             "content": "\n\n".join(content),
         }
 
-    return chat_box.filter_history(history_len=history_len, filter=filter)
+    return get_chat_box_by_token().filter_history(history_len=history_len, filter=filter)
 
 
 @st.cache_data
@@ -59,6 +83,8 @@ def parse_command(text: str, modal: Modal) -> bool:
     /help。查看命令帮助
     返回值：输入的是命令返回True，否则返回False
     '''
+    chat_box = get_chat_box_by_token()
+
     if m := re.match(r"/([^\s]+)\s*(.*)", text):
         cmd, name = m.groups()
         name = name.strip()
@@ -100,7 +126,10 @@ def parse_command(text: str, modal: Modal) -> bool:
 def dialogue_page(api: ApiRequest, is_lite: bool = False):
     if 'token' in st.session_state:
         api.setToken(st.session_state['token'])
+    else:
+        return
     st.session_state.setdefault("conversation_ids", {})
+    chat_box = get_chat_box_by_token()
     st.session_state["conversation_ids"].setdefault(chat_box.cur_chat_name, uuid.uuid4().hex)
     st.session_state.setdefault("file_chat_id", None)
     default_model = api.get_default_llm_model()[0]
