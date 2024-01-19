@@ -192,9 +192,9 @@ def knowledge_base_page(api: ApiRequest, is_lite: bool = None):
                                      zh_title_enhance=zh_title_enhance)
             if 'code' in ret:
                 if msg := check_success_msg(ret):
-                    st.toast(msg, icon="✔")
+                    st.toast(f":green[{msg}]", icon="✔")
                 elif msg := check_error_msg(ret):
-                    st.toast(msg, icon="✖")
+                    st.toast(f":red[{msg}]", icon="✖")
             else:
                 st.error(ret)
 
