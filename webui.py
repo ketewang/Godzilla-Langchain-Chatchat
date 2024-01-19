@@ -9,6 +9,7 @@ from configs import VERSION
 from server.utils import api_address
 from webui_pages.login.streamlit_authenticator.authenticate_page import authenticator
 from webui_pages.admin.admin_page import user_management_page
+from server.auth.role_previledge import role_options
 
 
 api = ApiRequest(base_url=api_address())
@@ -28,21 +29,47 @@ if __name__ == "__main__":
                 'About': f"""欢迎使用 Godzilla-AI-Chat Web {VERSION}！"""
             }
         )
-        pages = {
-            "对话": {
-                "icon": "chat",
-                "func": dialogue_page,
-            },
-            "知识库管理": {
-                "icon": "hdd-stack",
-                "func": knowledge_base_page,
-            },
-            "admin管理":{
-                "icon": "gear",
-                "func": user_management_page,
 
-            }
-        }
+        pages = {}
+
+        if 'role' in st.session_state:
+            if st.session_state['role'] in role_options:
+                pages["对话"] = {
+                                "icon": "chat",
+                                "func": dialogue_page,
+                            }
+            if st.session_state['role'] == role_options[1]:
+                pages["知识库管理"] = {
+                    "icon": "hdd-stack",
+                    "func": knowledge_base_page,
+                }
+            elif st.session_state['role'] == role_options[-1]:
+                pages["知识库管理"] = {
+                    "icon": "hdd-stack",
+                    "func": knowledge_base_page,
+                }
+                pages["admin管理"] = {
+                    "icon": "gear",
+                    "func": user_management_page,
+                }
+        else:
+            st.error("no role")
+
+        # pages = {
+        #     "对话": {
+        #         "icon": "chat",
+        #         "func": dialogue_page,
+        #     },
+        #     "知识库管理": {
+        #         "icon": "hdd-stack",
+        #         "func": knowledge_base_page,
+        #     },
+        #     "admin管理":{
+        #         "icon": "gear",
+        #         "func": user_management_page,
+        #
+        #     }
+        # }
 
         with st.sidebar:
             st.image(
@@ -62,13 +89,15 @@ if __name__ == "__main__":
             icons = [x["icon"] for x in pages.values()]
 
             default_index = 0
-            selected_page = option_menu(
-                "",
-                options=options,
-                icons=icons,
-                # menu_icon="chat-quote",
-                default_index=default_index,
-            )
+            if len(options) > 0:
+                selected_page = option_menu(
+                    "",
+                    options=options,
+                    icons=icons,
+                    # menu_icon="chat-quote",
+                    default_index=default_index,
+                )
+
 
         if "logout" in st.session_state and st.session_state['logout'] == True:
             st.success('成功登出系统')
@@ -94,7 +123,7 @@ if __name__ == "__main__":
         name, status, username = authenticator.login(form_name='用户登录', location='sidebar')
         if status == True:
             st.success(f'{username} 登录成功')
-            print(f"登录成功 {st.session_state['token']}")
+            print(f"登录成功 {st.session_state['token']} {st.session_state['role']}")
         elif status == False:
             st.error(f'{username} 登录失败')
 

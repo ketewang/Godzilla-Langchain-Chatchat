@@ -148,7 +148,7 @@ class Authenticate:
             resp = json.load(response)
             if resp['code'] == 200:
                 data = resp['data']
-                print(data)
+                #print(data)
                 #st.session_state['name'] = self.credentials['usernames'][self.username]['name']
                 self.exp_date = self._set_exp_date()
                 self.token = self._token_encode()
@@ -158,7 +158,8 @@ class Authenticate:
                 st.session_state['name'] = data['name']
                 st.session_state['logout'] = None
                 st.session_state['token'] = data['token']
-                print(f"get token:{data['token']}")
+                st.session_state['role'] = data['role']
+                print(f"get token:{data['token']} role:{data['role']}")
                 return True
 
         st.session_state['authentication_status'] = False
@@ -271,6 +272,7 @@ class Authenticate:
                 st.session_state['username'] = None
                 st.session_state['authentication_status'] = None
                 st.session_state['token'] = None
+                st.session_state['role'] = None
         elif location == 'sidebar':
             if st.sidebar.button(button_name, key):
                 self.cookie_manager.delete(self.cookie_name)
@@ -279,6 +281,7 @@ class Authenticate:
                 st.session_state['username'] = None
                 st.session_state['authentication_status'] = None
                 st.session_state['token'] = None
+                st.session_state['role'] = None
 
     def _update_password(self, username: str, password: str):
         """

@@ -19,30 +19,13 @@ def user_login(username: str = Body("", max_length=64, description="用户名"),
     try:
         res,db_data = verify_authorization_by_username_password(username,password)
         if res:
-            token = refreshTokenData(username, db_data)
-            #user_token_key = f"{user_token_prefix}{username}"
-            # if cache.cache.has(user_token_key):
-            #     token = cache.cache.get(user_token_key)
-            # else:
-            #     token = uuid.uuid4().hex
-            #     refreshTokenData(username,token,db_data)
-            #     # cache.cache.set(user_token_key,token)
-            #     # #设置url权限
-            #     # authorization_data = db_data['authorization_data']
-            #     # my_privilege_urls = {}
-            #     # if 'role' in authorization_data:
-            #     #     privilege_names = role_privileges[authorization_data['role']]
-            #     #     for name in privilege_names:
-            #     #         my_privilege_urls[all_urls[name]] = "granted"
-            #     # db_data['my_privilege_urls'] = my_privilege_urls
-            #     # logger.info(f"user_login 登录成功 username: {username} db_data:{db_data}")
-            #     # cache.cache.set(token, db_data)
-            #     # logger.info(f"token cache:{token} data:{db_data}")
+            token, role = refreshTokenData(username, db_data)
             logger.info(f"user_login 登录成功 username: {username}")
             data = {'name': db_data['name'],
                     'token': token,
+                    'role': role,
                     }
-            return BaseResponse(code=codes.OK,msg=f"登录成功 username:{username}",data=data)
+            return BaseResponse(code=codes.OK,msg=f"登录成功 username:{username} role:{role}",data=data)
         else:
             logger.warn(f"验证失败，user_login登录失败 username:{username}")
             return BaseResponse(code=codes.FORBIDDEN, msg=f"验证失败，登录失败 username:{username}")
@@ -52,7 +35,7 @@ def user_login(username: str = Body("", max_length=64, description="用户名"),
                      exc_info=e if log_verbose else None)
         return BaseResponse(code=codes.INTERNAL_SERVER_ERROR, msg=msg)
 
-def refreshTokenData(username: str, db_data):
+def refreshTokenData(username: str, db_data) -> (str,str):
 
     user_token_key = f"{user_token_prefix}{username}"
     if cache.cache.has(user_token_key):
@@ -64,14 +47,16 @@ def refreshTokenData(username: str, db_data):
     # 设置url权限
     authorization_data = db_data['authorization_data']
     my_privilege_urls = {}
+    role = None
     if 'role' in authorization_data:
-        privilege_names = role_privileges[authorization_data['role']]
+        role = authorization_data['role']
+        privilege_names = role_privileges[role]
         for name in privilege_names:
             my_privilege_urls[all_urls[name]] = "granted"
     db_data['my_privilege_urls'] = my_privilege_urls
     cache.cache.set(token, db_data)
-    logger.info(f"刷新token成功 username: {db_data['username']} cache:{token} db_data:{db_data}")
-    return token
+    logger.info(f"刷新token成功 username: {db_data['username']} cache:{token} role:{role} db_data:{db_data}")
+    return token,role
 
 
 def user_register(username: str = Body("", max_length=64, description="用户名"),
