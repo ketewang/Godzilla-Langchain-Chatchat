@@ -11,7 +11,7 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
     if 'token' in st.session_state:
         api.setToken(st.session_state['token'])
 
-    tab1, tab2,tab3 = st.tabs([":male-office-worker: 用户管理 ",":male-office-worker: 权限管理 ",":memo: 用户注册 "])
+    tab1, tab2,tab3 = st.tabs([":male-office-worker: 用户管理 ",":closed_lock_with_key: 权限管理 ",":memo: 用户注册 "])
 
     with tab1:
         st.header("用户")
