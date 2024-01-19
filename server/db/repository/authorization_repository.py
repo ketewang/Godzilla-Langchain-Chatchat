@@ -33,7 +33,7 @@ def get_authorization_by_username(session, username) -> AuthorizationModel:
 @with_session
 def update_name_email(session, username:str,name:str,email:str,authorization_data:dict):
     """
-    修改姓名与邮箱
+    修改姓名，邮箱，权限
     """
     m = session.query(AuthorizationModel).filter_by(username=username).first()
 
@@ -45,11 +45,20 @@ def update_name_email(session, username:str,name:str,email:str,authorization_dat
         else:
             m.authorization_data = authorization_data
         session.commit()
-        logger.info(f"update_name_email 修改姓名与邮箱成功 username: {username}")
-        return True
+        ret_data = {
+            "username": m.username,
+            "name": m.name,
+            "email": m.email,
+            "authorization_data": m.authorization_data,
+            "create_time": m.create_time,
+        }
+
+
+        logger.info(f"update_name_email 修改姓名、邮箱与权限成功 username: {username}")
+        return True,ret_data
     else:
-        logger.warn(f"update_name_email 修改姓名与邮箱失败 username: {username}")
-        return False
+        logger.warn(f"update_name_email 修改姓名、邮箱与权限失败 username: {username}")
+        return False,None
 
 
 
@@ -78,7 +87,7 @@ def query_users_from_db(session,keyword: str=None):
 
 
 @with_session
-def verify_authorization_by_username_password(session, username,password) -> (bool,str):
+def verify_authorization_by_username_password(session, username,password) -> (bool,dict):
     """
     查询用户记录
     """
@@ -86,7 +95,14 @@ def verify_authorization_by_username_password(session, username,password) -> (bo
 
     if m:
         logger.info(f"verify_authorization_by_username_password 验证成功 username: {username}")
-        return True,m.name
+        data = {
+            "username": m.username,
+            "name": m.name,
+            "email": m.email,
+            "authorization_data": m.authorization_data,
+            "create_time": m.create_time,
+        }
+        return True,data
     else:
         logger.warn(f"verify_authorization_by_username_password 验证失败 username: {username}")
         return False,None

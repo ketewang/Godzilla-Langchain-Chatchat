@@ -1,4 +1,7 @@
 
+# 获取所有定义的URL路径
+all_urls = {}
+
 role_options =["Data-user","Data-admin","System-super-admin"]
 
 

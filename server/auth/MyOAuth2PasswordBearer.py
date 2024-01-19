@@ -45,7 +45,16 @@ class MyOAuth2PasswordBearer(OAuth2PasswordBearer):
             logger.info(f"OAuth2 token:{token}")
             if token and cache.cache.has(token):
                 #读cache
-                logger.info(f"token {token}存在")
+                db_data = cache.cache.get(token)
+                if path in db_data['my_privilege_urls']:
+                    logger.info(f"token {token}有效 db_data:{db_data}")
+                else:
+                    logger.warn(f"token {token}无效 {path}不可访问 db_data:{db_data}")
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail=f"401 UNAUTHORIZED {path}不可访问",
+                        headers={"WWW-Authenticate": "Bearer"},
+                    )
             else:
                 logger.info(f"token {token}不存在cache中")
                 raise HTTPException(

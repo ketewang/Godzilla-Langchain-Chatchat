@@ -4,7 +4,11 @@ from fastapi import Body
 from httpx import codes
 from configs import logger, log_verbose
 from server.cache.cache_service import cache
+from server.auth.role_previledge import role_privileges,all_urls
+
 import uuid
+
+user_token_prefix = "user_token_"
 
 def user_login(username: str = Body("", max_length=64, description="用户名"),
                password: str = Body("", max_length=256, description="密码")):
@@ -13,19 +17,31 @@ def user_login(username: str = Body("", max_length=64, description="用户名"),
     '''
     #print(f"user_login username: {username} password: {password}")
     try:
-        ret,name = verify_authorization_by_username_password(username,password)
-        if ret:
+        res,db_data = verify_authorization_by_username_password(username,password)
+        if res:
+            token = refreshTokenData(username, db_data)
+            #user_token_key = f"{user_token_prefix}{username}"
+            # if cache.cache.has(user_token_key):
+            #     token = cache.cache.get(user_token_key)
+            # else:
+            #     token = uuid.uuid4().hex
+            #     refreshTokenData(username,token,db_data)
+            #     # cache.cache.set(user_token_key,token)
+            #     # #设置url权限
+            #     # authorization_data = db_data['authorization_data']
+            #     # my_privilege_urls = {}
+            #     # if 'role' in authorization_data:
+            #     #     privilege_names = role_privileges[authorization_data['role']]
+            #     #     for name in privilege_names:
+            #     #         my_privilege_urls[all_urls[name]] = "granted"
+            #     # db_data['my_privilege_urls'] = my_privilege_urls
+            #     # logger.info(f"user_login 登录成功 username: {username} db_data:{db_data}")
+            #     # cache.cache.set(token, db_data)
+            #     # logger.info(f"token cache:{token} data:{db_data}")
             logger.info(f"user_login 登录成功 username: {username}")
-            user_token_key = f"user_token_{username}";
-            if cache.cache.has(user_token_key):
-                token = cache.cache.get(user_token_key)
-            else:
-                token = uuid.uuid4().hex
-                cache.cache.set(user_token_key,token)
-                cache.cache.set(token, token)
-                logger.info(f"token cache:{token}")
-            data = {'name': name,
-                    'token': token}
+            data = {'name': db_data['name'],
+                    'token': token,
+                    }
             return BaseResponse(code=codes.OK,msg=f"登录成功 username:{username}",data=data)
         else:
             logger.warn(f"验证失败，user_login登录失败 username:{username}")
@@ -36,7 +52,26 @@ def user_login(username: str = Body("", max_length=64, description="用户名"),
                      exc_info=e if log_verbose else None)
         return BaseResponse(code=codes.INTERNAL_SERVER_ERROR, msg=msg)
 
+def refreshTokenData(username: str, db_data):
 
+    user_token_key = f"{user_token_prefix}{username}"
+    if cache.cache.has(user_token_key):
+        token = cache.cache.get(user_token_key)
+    else:
+        token = uuid.uuid4().hex
+
+    cache.cache.set(user_token_key, token)
+    # 设置url权限
+    authorization_data = db_data['authorization_data']
+    my_privilege_urls = {}
+    if 'role' in authorization_data:
+        privilege_names = role_privileges[authorization_data['role']]
+        for name in privilege_names:
+            my_privilege_urls[all_urls[name]] = "granted"
+    db_data['my_privilege_urls'] = my_privilege_urls
+    cache.cache.set(token, db_data)
+    logger.info(f"刷新token成功 username: {db_data['username']} cache:{token} db_data:{db_data}")
+    return token
 
 
 def user_register(username: str = Body("", max_length=64, description="用户名"),
@@ -81,8 +116,13 @@ def update_user_info(username: str = Body("", max_length=64, description="用户
       authorization_data: dict = Body("", description="authorization_data"),
                      ):
     try:
-        update_name_email(username,name,email,authorization_data)
-        return BaseResponse(code=codes.OK, msg=f"更新用户{username}信息 ok")
+        res, ret_data = update_name_email(username,name,email,authorization_data)
+        if res:
+            refreshTokenData(username, ret_data)
+            return BaseResponse(code=codes.OK, msg=f"更新用户{username}信息 ok")
+        else:
+            return BaseResponse(code=codes.INTERNAL_SERVER_ERROR, msg=f"更新用户{username}信息 fail,用户信息不存在")
+
     except Exception as e:
         msg = f"更新用户信息出错： {e}"
         logger.error(f'{e.__class__.__name__}: {msg}',

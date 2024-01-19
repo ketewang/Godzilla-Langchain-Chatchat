@@ -28,7 +28,7 @@ from server.utils import (BaseResponse, ListResponse, FastAPI, MakeFastAPIOfflin
                           get_server_configs, get_prompt_template)
 from typing import List, Literal
 from httpx import codes
-from server.auth.role_previledge import role_privileges
+from server.auth.role_previledge import role_privileges,all_urls
 nltk.data.path = [NLTK_DATA_PATH] + nltk.data.path
 
 
@@ -36,8 +36,7 @@ nltk.data.path = [NLTK_DATA_PATH] + nltk.data.path
 async def document():
     return RedirectResponse(url="/docs")
 
-# 获取所有定义的URL路径
-all_urls = {}
+
 
 
 def get_all_routes(
