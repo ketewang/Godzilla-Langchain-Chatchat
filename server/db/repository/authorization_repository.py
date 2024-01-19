@@ -31,7 +31,7 @@ def get_authorization_by_username(session, username) -> AuthorizationModel:
 
 
 @with_session
-def update_name_email(session, username,name,email):
+def update_name_email(session, username:str,name:str,email:str,authorization_data:dict):
     """
     修改姓名与邮箱
     """
@@ -40,6 +40,10 @@ def update_name_email(session, username,name,email):
     if m:
         m.name = name
         m.email = email
+        if authorization_data is None:
+            m.authorization_data = {}
+        else:
+            m.authorization_data = authorization_data
         session.commit()
         logger.info(f"update_name_email 修改姓名与邮箱成功 username: {username}")
         return True
@@ -67,6 +71,7 @@ def query_users_from_db(session,keyword: str=None):
                 "username": authorization.username,
                 "name": authorization.name,
                 "email": authorization.email,
+                "authorization_data": authorization.authorization_data,
                 "create_time": authorization.create_time,
             })
     return ret

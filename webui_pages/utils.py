@@ -1028,6 +1028,7 @@ class ApiRequest:
         password: str,
         name: str,
         email: str,
+        role: str,
     ):
         '''
         用户注册
@@ -1037,6 +1038,7 @@ class ApiRequest:
             "password": password,
             "name": name,
             "email": email,
+            "role": role,
         }
         print(data)
         resp = self.post("/auth/user_register", json=data)
@@ -1045,14 +1047,20 @@ class ApiRequest:
 
     def system_urls(
         self,
+        role:str = None
     ):
         '''
         查询所有接口url
         '''
         data = {
+            "role":role,
+            "foo":"foo",
         }
         resp = self.post("/server/all_urls", json=data)
         return self._get_response_value(resp)
+
+
+
 
     def system_search_users(
         self,
@@ -1072,7 +1080,8 @@ class ApiRequest:
             self,
             username: str,
             name: str,
-            email: str
+            email: str,
+            authorization_data: dict,
     ):
         '''
         修改用户信息
@@ -1081,6 +1090,7 @@ class ApiRequest:
             "username": username,
             "name": name,
             "email": email,
+            "authorization_data": authorization_data,
         }
         resp = self.post("/server/update_user_info", json=data)
         return self._get_response_value(resp)

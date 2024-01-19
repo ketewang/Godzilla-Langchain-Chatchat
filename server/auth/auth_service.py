@@ -42,14 +42,18 @@ def user_login(username: str = Body("", max_length=64, description="用户名"),
 def user_register(username: str = Body("", max_length=64, description="用户名"),
                    password: str = Body("", max_length=256, description="密码"),
                    name: str = Body("", max_length=64, description="姓名"),
-                   email: str = Body("", max_length=64, description="email")
+                   email: str = Body("", max_length=64, description="email"),
+                   role: str = Body("", max_length=64, description="role")
                    ):
     '''
         用户注册
     '''
     try:
-        add_authorization_to_db(username,password,name,email)
-        return BaseResponse(code=codes.OK, msg=f"用户注册ok username:{username} name:{name} email:{email}")
+        authorization_data = {}
+        if role is not None:
+            authorization_data['role'] = role
+        add_authorization_to_db(username,password,name,email,authorization_data)
+        return BaseResponse(code=codes.OK, msg=f"用户注册ok username:{username} name:{name} email:{email} role:{role}")
     except Exception as e:
         msg = f"用户注册出错： {e}"
         logger.error(f'{e.__class__.__name__}: {msg}',
@@ -73,10 +77,11 @@ def search_users(keyword: str = Body("", max_length=64, description="关键字")
 
 def update_user_info(username: str = Body("", max_length=64, description="用户名"),
                    name: str = Body("", max_length=64, description="姓名"),
-                   email: str = Body("", max_length=64, description="email")
+                   email: str = Body("", max_length=64, description="email"),
+      authorization_data: dict = Body("", description="authorization_data"),
                      ):
     try:
-        update_name_email(username,name,email)
+        update_name_email(username,name,email,authorization_data)
         return BaseResponse(code=codes.OK, msg=f"更新用户{username}信息 ok")
     except Exception as e:
         msg = f"更新用户信息出错： {e}"

@@ -28,7 +28,7 @@ from server.utils import (BaseResponse, ListResponse, FastAPI, MakeFastAPIOfflin
                           get_server_configs, get_prompt_template)
 from typing import List, Literal
 from httpx import codes
-
+from server.auth.role_previledge import role_privileges
 nltk.data.path = [NLTK_DATA_PATH] + nltk.data.path
 
 
@@ -37,9 +37,22 @@ async def document():
     return RedirectResponse(url="/docs")
 
 # 获取所有定义的URL路径
-all_urls = []
-def get_all_routes():
-    return BaseResponse(code=codes.OK, msg=f"get_all_routes ok",data=all_urls)
+all_urls = {}
+
+
+def get_all_routes(
+        role: str = Body("", max_length=64, description="role name"),
+        foo: str = Body("", max_length=64, description=""),
+                   ):
+    ret =[]
+
+    if role is not None:
+        names = role_privileges[role]
+        for name in names:
+            url = all_urls[name]
+            ret.append({"name": name, "url": url})
+
+    return BaseResponse(code=codes.OK, msg=f"get_all_routes ok, role:{role} ", data=ret)
 
 
 
@@ -65,7 +78,8 @@ def create_app(run_mode: str = None):
     mount_app_routes(app, run_mode=run_mode)
 
     for route in app.routes:
-        all_urls.append({"name":route.name,"url":route.path})
+        #all_urls.append({"name": route.name, "url": route.path})
+        all_urls[route.name] = route.path
     return app
 
 

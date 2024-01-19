@@ -12,7 +12,7 @@ from webui_pages.login.streamlit_authenticator.utils import generate_random_pw
 
 from webui_pages.login.streamlit_authenticator.exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
 from webui_pages.utils import *
-
+from server.auth.role_previledge import role_options
 import yaml
 from yaml.loader import SafeLoader
 
@@ -339,7 +339,7 @@ class Authenticate:
             else:
                 raise CredentialsError('password')
     
-    def _register_credentials(self, username: str, name: str, password: str, email: str, preauthorization: bool):
+    def _register_credentials(self, username: str, name: str, password: str, email: str, preauthorization: bool,role:str):
         """
         Adds to credentials dictionary the new user's information.
 
@@ -356,6 +356,8 @@ class Authenticate:
         preauthorization: bool
             The preauthorization requirement, True: user must be preauthorized to register, 
             False: any user can register.
+        role:str
+            role of the user
         """
         if not self.validator.validate_username(username):
             raise RegisterError('Username is not valid')
@@ -363,18 +365,20 @@ class Authenticate:
             raise RegisterError('Name is not valid')
         if not self.validator.validate_email(email):
             raise RegisterError('Email is not valid')
+        if role is None or role == '':
+            raise RegisterError('role is not valid')
 
         if 'token' in st.session_state:
             api.setToken(st.session_state['token'])
 
-        response = api.user_register(username, Hasher.hash(password),name,email)
+        response = api.user_register(username, Hasher.hash(password),name,email,role)
         if response is not None:
             resp = json.load(response)
             if resp['code'] == 200:
                 st.session_state['logout'] = None
                 # todo 待更新
                 self.credentials['usernames'][username] = {'name': name,
-                                                           'password': Hasher.hash(password), 'email': email}
+                                                           'password': Hasher.hash(password), 'email': email, 'role': role}
                 if preauthorization:
                     self.preauthorized['emails'].remove(email)
             else:
@@ -417,9 +421,13 @@ class Authenticate:
             register_user_form = st.sidebar.form('Register user')
 
         register_user_form.subheader(form_name)
-        new_email = register_user_form.text_input('Email')
+        role_choice = register_user_form.selectbox(
+            '选择Role',
+            role_options,
+            index=0)
         new_username = register_user_form.text_input('Username').lower()
         new_name = register_user_form.text_input('Name')
+        new_email = register_user_form.text_input('Email')
         new_password = register_user_form.text_input('Password', type='password')
         new_password_repeat = register_user_form.text_input('Repeat password', type='password')
 
@@ -429,12 +437,12 @@ class Authenticate:
                     if new_password == new_password_repeat:
                         if preauthorization:
                             if new_email in self.preauthorized['emails']:
-                                self._register_credentials(new_username, new_name, new_password, new_email, preauthorization)
+                                self._register_credentials(new_username, new_name, new_password, new_email, preauthorization,role_choice)
                                 return True
                             else:
                                 raise RegisterError('User not preauthorized to register')
                         else:
-                            self._register_credentials(new_username, new_name, new_password, new_email, preauthorization)
+                            self._register_credentials(new_username, new_name, new_password, new_email, preauthorization,role_choice)
                             return True
                     else:
                         raise RegisterError('Passwords do not match')
