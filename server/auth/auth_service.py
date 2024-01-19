@@ -121,7 +121,7 @@ def update_user_info(username: str = Body("", max_length=64, description="用户
             refreshTokenData(username, ret_data)
             return BaseResponse(code=codes.OK, msg=f"更新用户{username}信息 ok")
         else:
-            return BaseResponse(code=codes.INTERNAL_SERVER_ERROR, msg=f"更新用户{username}信息 fail,用户信息不存在")
+            return BaseResponse(code=codes.NOT_FOUND, msg=f"更新用户{username}信息 fail,用户信息不存在")
 
     except Exception as e:
         msg = f"更新用户信息出错： {e}"

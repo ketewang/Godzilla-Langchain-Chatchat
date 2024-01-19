@@ -21,7 +21,7 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
         if response1 is not None:
             resp1 = json.load(response1)
             #print(resp1)
-            if resp1['code'] == 200:
+            if 'code' in resp1 and resp1['code'] == 200:
                 users = resp1['data']
                 for user in users:
                     if 'role' in user["authorization_data"]:
@@ -60,10 +60,14 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
                         resp_sub_1 = api.system_update_user_info(edited_user_df.loc[i]['username'],edited_user_df.loc[i]['name'],edited_user_df.loc[i]['email'],authenticator_data_json)
                         if resp_sub_1 is not None:
                             resp_sub_1 = json.load(resp_sub_1)
-                            if resp_sub_1['code'] == 200:
-                                st.success(resp_sub_1['msg'])
+                            if 'code' in resp_sub_1:
+                                if resp_sub_1['code'] == 200:
+                                    st.success(resp_sub_1['msg'])
+                                else:
+                                    st.error(resp_sub_1['msg'])
                             else:
-                                st.error(resp_sub_1['msg'])
+                                st.error(resp_sub_1)
+
 
     with tab2:
 
@@ -75,8 +79,11 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
         response = api.system_urls(role=role_choice)
         if response is not None:
             resp = json.load(response)
-            if resp['code'] == 200:
-                urls = resp['data']
+            if 'code' in resp:
+                if resp['code'] == 200:
+                    urls = resp['data']
+
+
 
         # st.write('权限:', urls)
 
