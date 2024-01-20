@@ -246,7 +246,7 @@ class Authenticate:
                 self.username = login_form.text_input('Username')
                 st.session_state['username'] = self.username
                 self.password = login_form.text_input('Password', type='password')
-                if login_form.form_submit_button('Login'):
+                if login_form.form_submit_button('Login',use_container_width=True,type="primary"):
                     self._check_credentials()
 
         return st.session_state['name'], st.session_state['authentication_status'], st.session_state['username']
@@ -423,17 +423,18 @@ class Authenticate:
             register_user_form = st.sidebar.form('Register user')
 
         register_user_form.subheader(form_name)
-        role_choice = register_user_form.selectbox(
+        cols = register_user_form.columns(2)
+        role_choice = cols[1].selectbox(
             '选择Role',
             role_options,
             index=0)
-        new_username = register_user_form.text_input('Username').lower()
-        new_name = register_user_form.text_input('Name')
-        new_email = register_user_form.text_input('Email')
-        new_password = register_user_form.text_input('Password', type='password')
-        new_password_repeat = register_user_form.text_input('Repeat password', type='password')
+        new_username = cols[0].text_input('Username').lower()
+        new_name = cols[0].text_input('Name')
+        new_email = cols[1].text_input('Email')
+        new_password = cols[0].text_input('Password', type='password')
+        new_password_repeat = cols[0].text_input('Repeat password', type='password')
 
-        if register_user_form.form_submit_button('Register'):
+        if register_user_form.form_submit_button('创建账户',use_container_width=True,type="primary"):
             if len(new_email) and len(new_username) and len(new_name) and len(new_password) > 0:
                 if new_username not in self.credentials['usernames']:
                     if new_password == new_password_repeat:

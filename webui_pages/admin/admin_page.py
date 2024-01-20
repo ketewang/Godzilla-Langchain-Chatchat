@@ -43,13 +43,14 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
                                         required=True,
                                     )
                                 },
+                                use_container_width=True,
                                )
                 #print(df_users.items)
                 #print(edited_user_df)
             else:
                 st.error(resp1)
 
-        if st.button("保存更改"):
+        if st.button("保存更改",use_container_width=True,type="primary"):
             changed_item_count = 0
             for i in range(df_users["username"].size):
                 if df_users.loc[i]["name"] == edited_user_df.loc[i]["name"] and df_users.loc[i]["email"] == \
