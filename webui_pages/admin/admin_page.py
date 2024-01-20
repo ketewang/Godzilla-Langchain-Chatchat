@@ -83,6 +83,8 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
 
             if changed_item_count == 0:
                 st.toast(":yellow[没有数据需要保存]", icon='💡')
+            else:
+                st.rerun()
 
 
 
