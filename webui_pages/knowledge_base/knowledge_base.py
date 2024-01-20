@@ -61,7 +61,7 @@ def knowledge_base_page(api: ApiRequest, is_lite: bool = None):
         api.setToken(st.session_state["token"])
 
     tab1, tab2 = st.tabs(
-        [":male-office-worker: 知识库管理 ", ":closed_lock_with_key: 创建知识库 "])
+        [":file_cabinet: 知识库管理 ", ":green_book: 创建知识库 "])
 
     try:
         kb_list = {x["kb_name"]: x for x in get_kb_details()}

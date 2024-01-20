@@ -425,14 +425,14 @@ class Authenticate:
         register_user_form.subheader(form_name)
         cols = register_user_form.columns(2)
         role_choice = cols[1].selectbox(
-            '选择Role',
+            ':male-technologist: Role',
             role_options,
             index=0)
-        new_username = cols[0].text_input('Username').lower()
-        new_name = cols[0].text_input('Name')
-        new_email = cols[1].text_input('Email')
-        new_password = cols[0].text_input('Password', type='password')
-        new_password_repeat = cols[0].text_input('Repeat password', type='password')
+        new_username = cols[0].text_input(':bust_in_silhouette: Username').lower()
+        new_name = cols[0].text_input(':man: Name')
+        new_email = cols[1].text_input(':e-mail: Email')
+        new_password = cols[0].text_input(':key: Password', type='password')
+        new_password_repeat = cols[0].text_input(':key: Repeat password', type='password')
 
         if register_user_form.form_submit_button('创建账户',use_container_width=True,type="primary"):
             if len(new_email) and len(new_username) and len(new_name) and len(new_password) > 0:
