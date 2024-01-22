@@ -7,6 +7,7 @@ import nltk
 nltk.data.path = [NLTK_DATA_PATH] + nltk.data.path
 from datetime import datetime
 import sys
+from init_admin_user import create_admin_user
 
 
 if __name__ == "__main__":
@@ -91,13 +92,16 @@ if __name__ == "__main__":
         default=EMBEDDING_MODEL,
         help=("specify embeddings model.")
     )
+    parser.add_argument(
+        "--init-admin-user",
+        help="init admin user with password 1234 in sqlite database"
+    )
 
     args = parser.parse_args()
     start_time = datetime.now()
 
     if args.create_tables:
         create_tables() # confirm tables exist
-
     if args.clear_tables:
         reset_tables()
         print("database talbes reseted")
@@ -116,6 +120,11 @@ if __name__ == "__main__":
         prune_db_docs(args.kb_name)
     elif args.prune_folder:
         prune_folder_files(args.kb_name)
+    elif args.init_admin_user:
+
+        print(f"create admin user: {args.init_admin_user}")
+        password = input(f"please enter password for user:{args.init_admin_user}:")
+        create_admin_user(args.init_admin_user,password)
 
     end_time = datetime.now()
     print(f"总计用时： {end_time-start_time}")
