@@ -6,6 +6,23 @@ from configs import logger, log_verbose
 from sqlalchemy import desc,or_,and_
 
 @with_session
+def delete_authorization(session,usernames: list):
+    """
+     删除用户记录
+    """
+    if len(usernames) == 0:
+        logger.warn(f"没有提供删除的username")
+        return 0
+    print(f"删除 usernames:{usernames}")
+    del_count = 0
+
+    for username in usernames:
+        del_count += session.query(AuthorizationModel).filter(AuthorizationModel.username == username).delete()
+    session.commit()
+    logger.info(f"删除用户记录成功 删除数目:{del_count}")
+    return del_count
+
+@with_session
 def add_authorization_to_db(session, username: str, password, name, email,
                       authorization_data: Dict = {}):
     """

@@ -28,20 +28,26 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
                         user['role'] = user["authorization_data"]['role']
                     else:
                         user['role'] = None
+                    user['to_del'] = False
 
                 df_users = pd.DataFrame(users)
                 edited_user_df = st.data_editor(df_users,
                                disabled=["username","authorization_data","create_time"],
-                               #on_change=user_onchange,
+                               on_change=user_onchange,
                                column_config={
                                         "authorization_data": None,#隐藏
                                         "role": st.column_config.SelectboxColumn(
                                         "role",
                                         help="The role binded with the user",
-                                        width="medium",
+                                        #width="medium",
                                         options=role_options,
                                         required=True,
-                                    )
+                                        ),
+                                       "to_del": st.column_config.CheckboxColumn(
+                                           "delete",
+                                           help="**delete** the user",
+                                           default=False,
+                                       ),
                                 },
                                 use_container_width=True,
                                )
@@ -52,7 +58,13 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
 
         if st.button("保存更改",use_container_width=True,type="primary"):
             changed_item_count = 0
+            usernames_to_delete = []
             for i in range(df_users["username"].size):
+
+                if edited_user_df.loc[i]["to_del"] == True:
+                    usernames_to_delete.append(edited_user_df.loc[i]['username'])
+                    print(f"delete {edited_user_df.loc[i]['username']}")
+
                 if df_users.loc[i]["name"] == edited_user_df.loc[i]["name"] and df_users.loc[i]["email"] == \
                         edited_user_df.loc[i]["email"] and df_users.loc[i]["role"] == edited_user_df.loc[i]["role"]:
                     continue
@@ -82,7 +94,10 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
                             st.toast(f":red[{resp_sub_1}]", icon='❌')
                             #st.error(resp_sub_1)
 
-            if changed_item_count == 0:
+            if len(usernames_to_delete) > 0:
+                api.system_delete_users(usernames_to_delete)
+
+            if len(usernames_to_delete) == 0 and changed_item_count == 0:
                 st.toast(":yellow[没有数据需要保存]", icon='💡')
             else:
                 st.rerun()
@@ -152,11 +167,9 @@ def user_management_page(api: ApiRequest, is_lite: bool = False):
             st.error(e)
 
 
-# def user_onchange(** kwargs):
-#     print("user_onchange")
-#     print(kwargs)
-#     pass
-
+def user_onchange(** kwargs):
+    print("user_onchange")
+    print(kwargs)
 
 
 

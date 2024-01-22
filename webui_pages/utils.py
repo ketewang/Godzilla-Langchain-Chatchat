@@ -1095,6 +1095,19 @@ class ApiRequest:
         resp = self.post("/server/update_user_info", json=data)
         return self._get_response_value(resp)
 
+    def system_delete_users(
+        self,
+        usernames: list = [],
+    ):
+        '''
+        查询用户
+        '''
+        data = {
+            "usernames": usernames,
+            "foo":"foo",
+        }
+        resp = self.post("/server/delete_users", json=data)
+        return self._get_response_value(resp)
 
 class AsyncApiRequest(ApiRequest):
     def __init__(self, base_url: str = api_address(), timeout: float = HTTPX_DEFAULT_TIMEOUT, authorization: str = None):

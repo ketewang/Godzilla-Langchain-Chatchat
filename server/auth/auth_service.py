@@ -1,4 +1,4 @@
-from server.db.repository import add_authorization_to_db,verify_authorization_by_username_password,query_users_from_db,update_name_email
+from server.db.repository import add_authorization_to_db,verify_authorization_by_username_password,query_users_from_db,update_name_email,delete_authorization
 from server.utils import BaseResponse
 from fastapi import Body
 from httpx import codes
@@ -34,6 +34,14 @@ def user_login(username: str = Body("", max_length=64, description="用户名"),
         logger.error(f'{e.__class__.__name__}: {msg}',
                      exc_info=e if log_verbose else None)
         return BaseResponse(code=codes.INTERNAL_SERVER_ERROR, msg=msg)
+
+def deleteToken(username: str):
+    user_token_key = f"{user_token_prefix}{username}"
+    if cache.cache.has(user_token_key):
+        token = cache.cache.get(user_token_key)
+        cache.cache.delete(token)
+        cache.cache.delete(user_token_key)
+
 
 def refreshTokenData(username: str, db_data) -> (str,str):
 
@@ -110,6 +118,23 @@ def update_user_info(username: str = Body("", max_length=64, description="用户
 
     except Exception as e:
         msg = f"更新用户信息出错： {e}"
+        logger.error(f'{e.__class__.__name__}: {msg}',
+                     exc_info=e if log_verbose else None)
+        return BaseResponse(code=codes.INTERNAL_SERVER_ERROR, msg=msg)
+
+def delete_users(usernames : list = Body("", description="用户名列表"),
+                 foo: str = Body("", max_length=64, description=""),):
+    try:
+        ret_data = delete_authorization(usernames)
+        if ret_data > 0:
+            for username in usernames:
+                deleteToken(username)
+            return BaseResponse(code=codes.OK, msg=f"删除用户{usernames}信息 ok")
+        else:
+            return BaseResponse(code=codes.NOT_FOUND, msg=f"删除用户{usernames}信息 fail,用户信息不存在")
+
+    except Exception as e:
+        msg = f"删除用户信息出错： {e}"
         logger.error(f'{e.__class__.__name__}: {msg}',
                      exc_info=e if log_verbose else None)
         return BaseResponse(code=codes.INTERNAL_SERVER_ERROR, msg=msg)

@@ -20,7 +20,7 @@ from server.chat.search_engine_chat import search_engine_chat
 from server.chat.completion import completion
 from server.chat.feedback import chat_feedback
 from server.embeddings_api import embed_texts_endpoint
-from server.auth.auth_service import user_login,user_register,search_users,update_user_info
+from server.auth.auth_service import user_login,user_register,search_users,update_user_info,delete_users
 from server.llm_api import (list_running_models, list_config_models,
                             change_llm_model, stop_llm_model,
                             get_model_config, list_search_engines)
@@ -191,9 +191,9 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
              response_model=BaseResponse,
              summary="修改用户信息")(update_user_info)
 
-
-
-
+    app.post("/server/delete_users",
+             response_model=BaseResponse,
+             summary="删除用户信息")(delete_users)
 
 
 def mount_knowledge_routes(app: FastAPI):

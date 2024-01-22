@@ -17,7 +17,7 @@ data_admin_privileges = data_user_privileges + ["create_kb","delete_kb","update_
                          "recreate_summary_vector_store"]
 
 
-system_super_admin_privileges = data_admin_privileges + ["stop_llm_model","user_register","get_all_routes","search_users","update_user_info"]
+system_super_admin_privileges = data_admin_privileges + ["stop_llm_model","user_register","get_all_routes","search_users","update_user_info","delete_users"]
 
 role_privileges = {
     "Data-user": data_user_privileges,
