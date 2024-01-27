@@ -35,7 +35,7 @@ class ThreadSafeFaiss(ThreadSafeObject):
             if not os.path.isdir(path) and create_path:
                 os.makedirs(path)
             ret = self._obj.save_local(path)
-            logger.info(f"已将向量库 {self.key} 保存到磁盘")
+            logger.info(f"已将向量库 {self.key} 保存到磁盘 {ret}")
         return ret
 
     def clear(self):
@@ -55,8 +55,6 @@ class _FaissPool(CachePool):
         embed_model: str = EMBEDDING_MODEL,
         embed_device: str = embedding_device(),
     ) -> FAISS:
-        # TODO: 整个Embeddings加载逻辑有些混乱，待清理
-        # create an empty vector store
         embeddings = EmbeddingsFunAdapter(embed_model)
         doc = Document(page_content="init", metadata={})
         vector_store = FAISS.from_documents([doc], embeddings, normalize_L2=True,distance_strategy="METRIC_INNER_PRODUCT")

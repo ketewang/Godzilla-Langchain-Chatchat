@@ -18,13 +18,13 @@ from server.db.repository.knowledge_file_repository import (
 )
 
 from configs import (kbs_config, VECTOR_SEARCH_TOP_K, SCORE_THRESHOLD,
-                     EMBEDDING_MODEL, KB_INFO)
+                     EMBEDDING_MODEL, KB_INFO,logger)
 from server.knowledge_base.utils import (
     get_kb_path, get_doc_path, KnowledgeFile,
     list_kbs_from_folder, list_files_from_folder,
 )
 
-from typing import List, Union, Dict, Optional
+from typing import List, Union, Dict, Optional, Tuple
 
 from server.embeddings_api import embed_texts, aembed_texts, embed_documents
 from server.knowledge_base.model.kb_document_model import DocumentWithVSId
@@ -191,7 +191,6 @@ class KBService(ABC):
         '''
         传入参数为： {doc_id: Document, ...}
         如果对应 doc_id 的值为 None，或其 page_content 为空，则删除该文档
-        TODO：是否要支持新增 docs ？
         '''
         self.del_doc_by_ids(list(docs.keys()))
         docs = []
@@ -261,7 +260,7 @@ class KBService(ABC):
                   query: str,
                   top_k: int,
                   score_threshold: float,
-                  ) -> List[Document]:
+                  ) -> List[Tuple[Document, float]]:
         """
         搜索知识库子类实自己逻辑
         """
@@ -396,6 +395,7 @@ def get_kb_file_details(kb_name: str) -> List[Dict]:
     lower_names = {x.lower(): x for x in result}
     for doc in files_in_db:
         doc_detail = get_file_detail(kb_name, doc)
+        logger.warn(f"kb_name:{kb_name} doc:{doc} doc_detail:{doc_detail}")
         if doc_detail:
             doc_detail["in_db"] = True
             if doc.lower() in lower_names:
@@ -408,6 +408,7 @@ def get_kb_file_details(kb_name: str) -> List[Dict]:
     for i, v in enumerate(result.values()):
         v['No'] = i + 1
         data.append(v)
+    logger.warn(f"kb_name:{kb_name} data:{data}")
 
     return data
 
