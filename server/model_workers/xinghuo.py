@@ -13,7 +13,6 @@ async def request(appid, api_key, api_secret, Spark_url, domain, question, tempe
     wsParam = SparkApi.Ws_Param(appid, api_key, api_secret, Spark_url)
     wsUrl = wsParam.create_url()
     data = SparkApi.gen_params(appid, domain, question, temperature, max_token)
-    print(data)
     async with websockets.connect(wsUrl) as ws:
         await ws.send(json.dumps(data, ensure_ascii=False))
         finish = False
@@ -45,9 +44,10 @@ class XingHuoWorker(ApiModelWorker):
         params.load_config(self.model_names[0])
 
         version_mapping = {
-            "v1.5": {"domain": "general", "url": "ws://spark-api.xf-yun.com/v1.1/chat","max_tokens": 4000},
-            "v2.0": {"domain": "generalv2", "url": "ws://spark-api.xf-yun.com/v2.1/chat","max_tokens": 8000},
-            "v3.0": {"domain": "generalv3", "url": "ws://spark-api.xf-yun.com/v3.1/chat","max_tokens": 8000},
+            "v1.5": {"domain": "general", "url": "ws://spark-api.xf-yun.com/v1.1/chat", "max_tokens": 4000},
+            "v2.0": {"domain": "generalv2", "url": "ws://spark-api.xf-yun.com/v2.1/chat", "max_tokens": 8000},
+            "v3.0": {"domain": "generalv3", "url": "ws://spark-api.xf-yun.com/v3.1/chat", "max_tokens": 8000},
+            "v3.5": {"domain": "generalv3", "url": "ws://spark-api.xf-yun.com/v3.5/chat", "max_tokens": 16000},
         }
 
         def get_version_details(version_key):
