@@ -31,3 +31,7 @@ def create_admin_user(
     except Exception as e:
         logger.error(f"无法初始化admin账号：{DB_ROOT_PATH}。错误信息：{e}")
         return False
+
+
+if __name__ == "__main__":
+    create_admin_user('admin','1234')
